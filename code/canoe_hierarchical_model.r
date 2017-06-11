@@ -225,32 +225,24 @@ save(mPast2MeanSpherePresent, file='./output/mPast2MeanSpherePresent.robj')
 # #----------------------------------------------------------
 # # ------------ Ecology models -----------
 
-# # model mAreaTotal
-# a <- log_total_area
-# data <- list( "T","I","Y","a" )
-# parameters <- c("alpha", "beta")
-# # file.show("mArea.txt")
-# inits <- function(){ list( alpha=rnorm(T,0,5), beta=0 ) }
-# mAreaTotal <- bugs(data, inits <- inits, parameters, "mArea.txt", n.chains=3, n.iter=iter, clearWD <- TRUE) 
-# save.image( file <- paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep <- "/") )
+# model mAreaTotal
+a <- log_total_area
+dat_list <- list( T, I, Y, a )
+mAreaTotal <- stan(file='./code/mArea.stan', data=dat_list, iter=500)
+save(mAreaTotal, file='./output/mAreaTotal.robj')
 
 # # model mAreaMean
-# a <- log_mean_area
-# data <- list( "T","I","Y","a" )
-# parameters <- c("alpha", "beta")
-# # file.show("mArea.txt")
-# inits <- function(){ list( alpha=rnorm(T,0,5), beta=0 ) }
-# mAreaMean <- bugs(data, inits <- inits, parameters, "mArea.txt", n.chains=3, n.iter=iter, clearWD <- TRUE) 
-# save.image( file <- paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep <- "/") )
+a <- log_mean_area
+dat_list <- list( T, I, Y, a )
+mAreaMean <- stan(file='./code/mArea.stan', data=dat_list, iter=500)
+save(mAreaMean, file='./output/mAreaMean.robj')
 
-# # model mAreaMean
-# a <- logmxarea
-# data <- list( "T","I","Y","a" )
-# parameters <- c("alpha", "beta")
-# # file.show("mArea.txt")
-# inits <- function(){ list( alpha=rnorm(T,0,5), beta=0 ) }
-# mAreaMax <- bugs(data, inits <- inits, parameters, "mArea.txt", n.chains=3, n.iter=iter, clearWD <- TRUE) 
-# save.image( file <- paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep <- "/") )
+# # model mAreaMax
+a <- log_max_area
+dat_list <- list( T, I, Y, a )
+mAreaMax <- stan(file='./code/mArea.stan', data=dat_list, iter=500)
+save(mAreaMax, file='./output/mAreaMax.robj')
+
 
 # # model mReefHigh
 # data <- list( "T","I","Y","reef_high" )
