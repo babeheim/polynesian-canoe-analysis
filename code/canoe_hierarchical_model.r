@@ -1,6 +1,172 @@
 
 rm(list=ls())
 
+trait_data <- read.csv( file <- "./inputs/traits_long.csv", stringsAsFactors=FALSE)
+d <- read.csv( file <- "./inputs/islanddata.csv", stringsAsFactors=FALSE, na.strings="." )
+
+islands_list <- sort(unique(d$archipelago))
+
+# s and i tables: immigration and sphere of influence
+# also make as long
+
+# unfinsihed code...
+
+focal <- rep(islands_list, each=11)
+neighbor <- rep(neighbor_cols, times=11)
+neighbor_ties <- data.frame( focal, neighbor )
+neighbor_ties$neighbor <- as.character(neighbor_ties$neighbor)
+neighbor_ties$tie <- 0
+
+neighbor_cols <- c("sHawaii", "sMarq", "sTuam", "sSoci", "sAust",
+	"sCook", "sMani", "sNewz", "sSamo", "sTong", "sFiji")
+
+for(i in 1:length(neighbor_cols)){
+	nearby <- unique(d$archipelago[which(d[,neighbor_cols[i]]==1)])
+	tar <- which(neighbor_ties$focal %in% nearby & neighbor_ties$neighbor==neighbor_cols[i])
+	if(length(tar) > 0) neighbor_ties$tie[tar] <- 1
+}
+
+drop <- which(neighbor_ties$tie==0)
+neighbor_ties <- neighbor_ties[-drop,]
+
+
+
+# these will be used to construct trait-level predictors...
+
+for(i in 1:nrow(trait_data)){
+
+	my_trait <- trait_data$traitID
+	my_archipelago <- trait_data$islands
+
+	my_neighbor_archipelagos <- d$archipelago[]
+	my_ancestor_archipelagos <- d$archipelago[]
+
+	neighbor_rows <- which(trait_data$islands %in% my_neighbor_archipelagos & trait_data$traitID==my_trait)
+	neighbor_trait_count <- sum(trait_data$present[neighbor_rows])
+
+	ancestor_rows <- which(trait_data$islands %in% my_ancestor_archipelagos & trait_data$traitID==my_trait)
+	ancestor_trait_count <- sum(trait_data$present[ancestor_rows])
+
+}
+
+
+
+# need table to be one row per archipelago, to refrence the above
+
+modal <- function(data){
+    mode <- NA
+    if(length(data) > 0 & !all(is.na(data))){
+        mode <- names(sort(table(data),decreasing=T))[1]
+        options(warn=-1)
+        if(!is.na(as.numeric(mode))){
+        mode <- as.numeric(mode)
+        }
+        options(warn=0)
+    }
+    return(mode)
+}
+
+group_reg <- data.frame( islands = islands_list )
+group_reg$islands <- as.character(group_reg$islands)
+
+group_reg$island_count <- tapply(d$high, d$archipelago, length)
+
+group_reg$high <- tapply(d$high, d$archipelago, modal)
+group_reg$makatea <- tapply(d$makatea, d$archipelago, modal)
+group_reg$low <- as.numeric(!group_reg$high & !group_reg$makatea)
+group_reg$reef_prop <- round(tapply(d$reef, d$archipelago, function(z) mean(z, na.rm=TRUE)), 2)
+
+group_reg$area_mean <- round(tapply(d$sqkm, d$archipelago, function(z) mean(z, na.rm=TRUE)), 2)
+group_reg$area_sum <- tapply(d$sqkm, d$archipelago, function(z) sum(z, na.rm=TRUE))
+
+
+
+category_list <- sort(unique(trait_data$category))
+trait_data$cat <- match(trait_data$category, category_list)
+
+
+traitID_list <- sort(unique(trait_data$traitID))
+trait_data$trait <- match(trait_data$traitID, traitID_list)
+
+islands_list <- sort(unique(trait_data$islands))
+trait_data$group <- match(trait_data$islands, islands_list)
+
+link <- match(substr(trait_data$islands, 1,3), substr(group_reg$islands, 1, 3 ))
+trait_data$islands <- group_reg$islands[link]
+trait_data$low <- group_reg$low[link]
+trait_data$area_sum <- group_reg$area_sum[link]
+
+
+
+model0 <- alist(
+	present ~ bernoulli(p),
+	logit(p) <- a,
+	a ~ normal(0, 1)
+)
+
+m0 <- map2stan(model0, data=trait_data)
+
+model1 <- alist(
+	present ~ bernoulli(p),
+	logit(p) <- a + a_trait[trait],
+	a ~ normal(0, 1),
+	a_trait[trait] ~ normal(0, 0.1)
+)
+
+m1 <- map2stan(model1, data=trait_data)
+
+model2 <- alist(
+	present ~ bernoulli(p),
+	logit(p) <- a + a_cat[cat] + a_group[group],
+	a ~ normal(0, 1),
+	a_cat[cat] ~ normal(0, 0.1),
+	a_group[group] ~ normal(0, 0.1)
+)
+
+m2 <- map2stan(model2, data=trait_data)
+
+
+trait_data$log_area_sum <- log(trait_data$area_sum / 1e8)
+
+model3 <- alist(
+	present ~ bernoulli(p),
+	logit(p) <- a + a_cat[cat] + a_group[group] 
+		+ b_low*low + b_area*log_area_sum,
+	a ~ normal(0, 1),
+	a_cat[cat] ~ normal(0, 0.1),
+	a_group[group] ~ normal(0, 0.1),
+	b_low ~ normal(0, 1),
+	b_area ~ normal(0, 1)
+)
+
+m3 <- map2stan(model3, data=trait_data, cores=3, chains=3)
+
+# do different categories of trait have idff relationships with area?
+
+
+# this is the full model:
+model4 <- alist(
+	present ~ bernoulli(p),
+	logit(p) <- a + a_trait[trait] + a_group[group] 
+		+ b_low*low + b_area*area_sum
+		+ b_ancestor * ancestor_trait_count
+		+ b_neighbor * neighbor_trait_count,
+	a ~ normal(0, 1),
+	a_trait[trait] ~ normal(0, 2),
+	a_group[group] ~ normal(0, 2),
+	b_low ~ normal(0, 1),
+	b_area ~ normal(0, 1)
+)
+
+m4 <- map2stan(model3, data=trait_data)
+
+
+
+
+
+
+
+
 # --------------------------------------
 # LOOP OVER ALL SUBSETS OF CANOE TRAITS
 # --------------------------------------
@@ -18,6 +184,9 @@ traitset <- traittypes[1] # can be "paddle", "hull", "decoration", "sailrigging"
 # ------------------------------------------------------------------
 trait_data <- read.csv( file <- "./inputs/traits.csv", stringsAsFactors=FALSE)
 d <- read.csv( file <- "./inputs/islanddata.csv", stringsAsFactors=FALSE, na.strings="." )
+
+
+
 
 d$sqkm <- d$sqkm * 1e6
 # convert to square meters so everthing is >1 (for logging)
