@@ -1,0 +1,17 @@
+model
+{ 
+   for( t in 1 : T ) {
+      alpha[t] ~ dnorm(0, .1)
+   }
+lambda ~ dnorm(0, .01)
+   for( t in 1 : T ){
+	for( i in 1:I){
+         	logit(p[t , i ]) <- alpha[t] + lambda * sphere[t,i]
+			}
+		}
+   for( t in 1 : T ) {
+      for( i in 1 : I ) {
+         Y[t , i] ~ dbin(p[t , i], 1)
+      }
+   }
+}
