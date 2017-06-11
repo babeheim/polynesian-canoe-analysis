@@ -7,13 +7,13 @@ model
 psi~dnorm(0, .01)
 lambda ~ dnorm(0, .01)
 for( t in 1 : T ){
-	for( i in 9:11){		
-		logit(p[t , i ]) <- alpha[t] + psi *psi.tau[t] + lambda * sphere[t,i]		
-		}	
-	for( i in 1:8){
-         	logit(p[t , i ]) <- alpha[t] + psi * inherit[t,i] + lambda * sphere[t,i]
-		}
-	}
+    for( i in 9:11){        
+        logit(p[t , i ]) <- alpha[t] + psi *psi.tau[t] + lambda * sphere[t,i]        
+        }    
+    for( i in 1:8){
+             logit(p[t , i ]) <- alpha[t] + psi * inherit[t,i] + lambda * sphere[t,i]
+        }
+    }
    for( t in 1 : T ) {
       for( i in 1 : I ) {
          Y[t , i] ~ dbin(p[t , i], 1)

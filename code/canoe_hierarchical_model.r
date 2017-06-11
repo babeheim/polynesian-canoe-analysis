@@ -1,17 +1,23 @@
+
+rm(list=ls())
+
 # --------------------------------------
 # LOOP OVER ALL SUBSETS OF CANOE TRAITS
 # --------------------------------------
 traittypes = c("paddle", "hull", "decor", "sailrigging", "doublecanoe", "outrigger", "all")
-for( j in 1:length(traittypes) ){
 
-if(j>1) rm(list = unlist(res.str))
-traitset = traittypes[j] # can be "paddle", "hull", "decor", "sailrigging", "doublecanoe", "outrigger", "all"
+# for( j in 1:length(traittypes) ){
+
+# if(j>1) rm(list = unlist(res.str))
+
+
+traitset = traittypes[1] # can be "paddle", "hull", "decor", "sailrigging", "doublecanoe", "outrigger", "all"
 
 # ------------------------------------------------------------------
 # READ IN DATA
 # ------------------------------------------------------------------
-Y = traits = read.table( file = "traits.csv", sep = ",", header = TRUE, row.names = 1, nrows = 65 )
-d =  read.csv( file = "islanddata.csv", header = TRUE, stringsAsFactors=FALSE, na.strings="." )
+Y = traits = read.table( file = "./inputs/traits.csv", sep = ",", header = TRUE, row.names = 1, nrows = 65 )
+d =  read.csv( file = "./inputs/islanddata.csv", header = TRUE, stringsAsFactors=FALSE, na.strings="." )
 # direction = read.csv( file ="directionality.csv", header=TRUE, stringsAsFactors=FALSE, na.strings="." )
 d$sqkm = d$sqkm * 1000000  # convert to square meters so everthing is >1 (for logging)
 # ------------------------------------------------------------------
@@ -78,34 +84,36 @@ I = ncol( Y ) # number of islands
 T = nrow( Y ) # number of traits
 a = logmnarea # average island area of each archipelago (log-transformed), vector that matches the columns of Y
 
-saveas = paste( traitset,format( Sys.time(), "%b_%d_%H%M" ), sep="" ) # tag for files to be saved 
-dir.create( traitset )  # create folder to put results in
 
-library(arm)
+# saveas = paste( traitset,format( Sys.time(), "%b_%d_%H%M" ), sep="" ) # tag for files to be saved 
+# dir.create( traitset )  # create folder to put results in
+
+
+library(rstan)
 iter = 1000 # length of chain
 #----------------------------------------------------------
 # ------------- MODELS AND ESTIMATION ---------------------
 #----------------------------------------------------------
 # -------- "Null" models ---------
 
-# model mCoinFlip checked
-data = list( "T","I","Y")
-parameters = c("alpha")
-# file.show("mCoinFlip.txt")
-mCoinFlip = bugs(data, inits = NULL, parameters, "mCoinFlip.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-# save( mCoinFlip, file = paste("mCoinFlip",saveas,".rdata", sep = "") )
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+
+
+# model mCoinFlip
+dat_list <- list( T, I, Y )
+mCoinFlip <- stan(file='./code/mCoinFlip.stan', data=dat_list, iter=500)
+save(mCoinFlip, file='./output/mCoinFlip.robj')
 
 # model mBase checked
-data = list( "T","I","Y")
-parameters = c("alpha")
-mBase = bugs(data, inits = NULL, parameters, "mBase.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+dat_list <- list( T, I, Y )
+mBase <- stan(file='./code/mBase.stan', data=dat_list, iter=500)
+save(mBase, file='./output/mBase.robj')
 
 #----------------------------------------------------------
 # -------- Inheritance models -----------
 
 # model mPastMean
+# every trait has a varying intercept and varying psi.tau
+
 inherit = inheritmean
 data = list( "T","I","Y","inherit" )
 parameters = c("alpha", "psi", "psi.tau")
