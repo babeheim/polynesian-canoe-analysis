@@ -2,6 +2,7 @@ data{
     int I;
     int T;
     int Y[T,I];
+    real<lower=0> sphere[T,I];
     real<lower=0> inherit[T,I];
     real a[I];
     real nrh[I];
@@ -9,15 +10,17 @@ data{
 }
 parameters{
     real alpha[T];
-    real beta;
     real psi;
     real<lower=0,upper=1> psi_tau;
+    real lambda;
+    real beta;
     real kappa3;
     real kappa4;
 }
 model{
     real p[T,I];
     psi ~ normal(0, .01);
+    lambda ~ normal(0, .01);
     beta ~ normal(0, 0.01);
     kappa3 ~ normal(0, .01);
     kappa4 ~ normal(0, .01);
@@ -28,7 +31,8 @@ model{
     for( t in 1 : T ){
         for( i in 9 : 11 ){
             p[ t, i ] = alpha[t] 
-            + psi * psi_tau[t]
+            + psi * psi_tau
+            + lambda * sphere[ t , i ]
             + beta * a[i]
             + kappa3 * nrh[i]
             + kappa4 * nrl[i];
@@ -36,6 +40,7 @@ model{
         for( i in 1 : 8 ){
             p[ t, i ] = alpha[t]
             + psi * inherit[ t, i ]
+            + lambda * sphere[ t , i ]
             + beta * a[i]
             + kappa3 * nrh[i]
             + kappa4 * nrl[i];

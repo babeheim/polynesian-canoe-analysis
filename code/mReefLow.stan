@@ -2,7 +2,7 @@ data{
     int I;
     int T;
     int Y[T,I];
-    real rh[I];
+    real rl[I];
 }
 parameters{
     real alpha[T];

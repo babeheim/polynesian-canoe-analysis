@@ -2,6 +2,7 @@ data{
     int I;
     int T;
     int Y[T,I];
+    real a[I];
     real rh[I];
     real rl[I];
     real nrh[I];

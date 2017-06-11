@@ -4,11 +4,14 @@ data{
     int Y[T,I];
     real<lower=0> sphere[T,I];
     real<lower=0> inherit[T,I];
+    real a[I];
     real nrh[I];
     real nrl[I];
 }
 parameters{
     real alpha[T];
+    real psi;
+    real<lower=0,upper=1> psi_tau[T];
     real lambda;
     real beta;
     real kappa3;

@@ -8,7 +8,7 @@ data{
 parameters{
     real alpha[T];
     real psi;
-    real<lower=0,upper=1> psi_tau;
+    real<lower=0,upper=1> psi_tau[T];
     real beta;
 }
 model{
