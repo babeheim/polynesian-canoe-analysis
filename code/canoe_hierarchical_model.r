@@ -112,430 +112,404 @@ save(mBase, file='./output/mBase.robj')
 # -------- Inheritance models -----------
 
 # model mPastMean
-# every trait has a varying intercept and varying psi.tau
-
-inherit = inheritmean
-data = list( "T","I","Y","inherit" )
-parameters = c("alpha", "psi", "psi.tau")
-mPastMean = bugs(data, inits = NULL, parameters, "mPast.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+inherit <- inheritmean
+dat_list <- list( T, I, Y, inherit )
+mPastMean <- stan(file='./code/mPast.stan', data=dat_list, iter=500)
+save(mPastMean, file='./output/mPastMean.robj')
 
 # model mPastPresent
 inherit = inheritpresent
-data = list( "T","I","Y","inherit" )
-parameters = c("alpha", "psi", "psi.tau")
-mPastPresent = bugs(data, inits = NULL, parameters, "mPast.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+dat_list <- list( T, I, Y, inherit )
+mPastPresent <- stan(file='./code/mPast.stan', data=dat_list, iter=500)
+save(mPastPresent, file='./output/mPastPresent.robj')
 
 # model mPast2Mean 
-inherit = inheritmean
-data = list( "T","I","Y","inherit" )
-parameters = c("alpha", "psi", "psi.tau")
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(1,1,0.5) ) }
-mPast2Mean = bugs(data, inits = inits, parameters, "mPast2.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+inherit <- inheritmean
+dat_list <- list( T, I, Y, inherit )
+mPast2Mean <- stan(file='./code/mPast2.stan', data=dat_list, iter=500)
+save(mPast2Mean, file='./output/mPast2Mean.robj')
 
 # model mPast2Present 
 inherit = inheritpresent
-data = list( "T","I","Y","inherit" )
-parameters = c("alpha", "psi", "psi.tau")
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(1,1,0.5) ) }
-mPast2Present = bugs(data, inits = inits, parameters, "mPast2.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+dat_list <- list( T, I, Y, inherit )
+mPast2Present <- stan(file='./code/mPast2.stan', data=dat_list, iter=500)
+save(mPast2Present, file='./output/mPast2Present.robj')
 
 # model mSphereMean 
 sphere = spheremean
-data = list( "T","I","Y","sphere" )
-parameters = c("alpha", "lambda")
-mSphereMean = bugs(data, inits = NULL, parameters, "mSphere.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+dat_list <- list( T, I, Y, sphere )
+mSphereMean <- stan(file='./code/mSphere.stan', data=dat_list, iter=500)
+save(mSphereMean, file='./output/mSphereMean.robj')
 
 # model mSpherePresent 
 sphere = spherepresent
-data = list( "T","I","Y","sphere" )
-parameters = c("alpha", "lambda")
-mSpherePresent = bugs(data, inits = NULL, parameters, "mSphere.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+dat_list <- list( T, I, Y, sphere )
+mSpherePresent <- stan(file='./code/mSphere.stan', data=dat_list, iter=500)
+save(mSpherePresent, file='./output/mSpherePresent.robj')
 
 # model mPastPresentSphereMean 
 sphere = spheremean; inherit = inheritpresent
-data = list( "T","I","Y","sphere", "inherit" )
-parameters = c("alpha", "psi", "psi.tau", "lambda")
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5),lambda=rnorm(1,0,1) ) }
-mPastPresentSphereMean = bugs(data, inits = NULL, parameters, "mPastSphere.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+dat_list <- list( T, I, Y, sphere, inherit )
+mPastPresentSphereMean <- stan(file='./code/mPastSphere.stan', data=dat_list, iter=500)
+save(mPastPresentSphereMean, file='./output/mPastPresentSphereMean.robj')
 
 # model mPastPresentSpherePresent
 sphere = spherepresent; inherit = inheritpresent 
-data = list( "T","I","Y","sphere", "inherit" )
-parameters = c("alpha", "psi", "psi.tau", "lambda")
-inits = function(){ list( alpha=rnorm(T,0,0.01), psi=rnorm(1,0,0.01), psi.tau=rbinom(T,1,0.5), lambda=rnorm(1,0,0.1)  ) }
-mPastPresentSpherePresent = bugs(data, inits = inits, parameters, "mPastSphere.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+dat_list <- list( T, I, Y, sphere, inherit )
+mPastPresentSpherePresent <- stan(file='./code/mPastSphere.stan', data=dat_list, iter=500)
+save(mPastPresentSpherePresent, file='./output/mPastPresentSpherePresent.robj')
 
 # model mPastMeanSphereMean 
 sphere = spheremean; inherit = inheritmean
-data = list( "T","I","Y","sphere", "inherit" )
-parameters = c("alpha", "psi", "psi.tau", "lambda")
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5),lambda=rnorm(1,0,1) ) }
-mPastMeanSphereMean = bugs(data, inits = NULL, parameters, "mPastSphere.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+dat_list <- list( T, I, Y, sphere, inherit )
+mPastMeanSphereMean <- stan(file='./code/mPastSphere.stan', data=dat_list, iter=500)
+save(mPastMeanSphereMean, file='./output/mPastMeanSphereMean.robj')
 
-# model mPastMeanSpherePresent 
+# model mPastMeanSpherePresent
 sphere = spherepresent; inherit = inheritmean
-data = list( "T","I","Y","sphere", "inherit" )
-parameters = c("alpha", "psi", "psi.tau", "lambda")
-inits = function(){ list( alpha=rnorm(T,0,0.01), psi=rnorm(1,0,0.01), psi.tau=rbinom(T,1,0.5), lambda=rnorm(1,0,0.1)  ) }
-mPastMeanSpherePresent = bugs(data, inits = inits, parameters, "mPastSphere.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+dat_list <- list( T, I, Y, sphere, inherit )
+mPastMeanSpherePresent <- stan(file='./code/mPastSphere.stan', data=dat_list, iter=500)
+save(mPastMeanSpherePresent, file='./output/mPastMeanSpherePresent.robj')
 
 # model mPast2PresentSphereMean 
 sphere = spheremean; inherit = inheritpresent
-data = list( "T","I","Y","sphere", "inherit" )
-parameters = c("alpha", "psi", "psi.tau", "lambda")
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5),lambda=rnorm(1,0,1) ) }
-mPast2PresentSphereMean = bugs(data, inits = NULL, parameters, "mPast2Sphere.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+dat_list <- list( T, I, Y, sphere, inherit )
+mPast2PresentSphereMean <- stan(file='./code/mPast2Sphere.stan', data=dat_list, iter=500)
+save(mPast2PresentSphereMean, file='./output/mPast2PresentSphereMean.robj')
 
-# model mPast2PresentSpherePresent 
-sphere = spherepresent; inherit = inheritpresent
-data = list( "T","I","Y","sphere", "inherit" )
-parameters = c("alpha", "psi", "psi.tau", "lambda")
-inits = function(){ list( alpha=rnorm(T,0,0.01), psi=rnorm(1,0,0.01), psi.tau=rbinom(T,1,0.5), lambda=rnorm(1,0,0.1)  ) }
-mPast2PresentSpherePresent = bugs(data, inits = inits, parameters, "mPast2Sphere.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# model mPast2PresentSpherePresent
+sphere = spherepresent; inherit = inheritpresent 
+dat_list <- list( T, I, Y, sphere, inherit )
+mPast2PresentSpherePresent <- stan(file='./code/mPast2Sphere.stan', data=dat_list, iter=500)
+save(mPast2PresentSpherePresent, file='./output/mPast2PresentSpherePresent.robj')
 
 # model mPast2MeanSphereMean 
 sphere = spheremean; inherit = inheritmean
-data = list( "T","I","Y","sphere", "inherit" )
-parameters = c("alpha", "psi", "psi.tau", "lambda")
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5),lambda=rnorm(1,0,1) ) }
-mPastMeanSphereMean = bugs(data, inits = NULL, parameters, "mPast2Sphere.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+dat_list <- list( T, I, Y, sphere, inherit )
+mPast2MeanSphereMean <- stan(file='./code/mPast2Sphere.stan', data=dat_list, iter=500)
+save(mPast2MeanSphereMean, file='./output/mPast2MeanSphereMean.robj')
 
-# model mPast2MeanSpherePresent 
+# model mPast2MeanSpherePresent
 sphere = spherepresent; inherit = inheritmean
-data = list( "T","I","Y","sphere", "inherit" )
-parameters = c("alpha", "psi", "psi.tau", "lambda")
-inits = function(){ list( alpha=rnorm(T,0,0.01), psi=rnorm(1,0,0.01), psi.tau=rbinom(T,1,0.5), lambda=rnorm(1,0,0.1)  ) }
-mPastMeanSpherePresent = bugs(data, inits = inits, parameters, "mPast2Sphere.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+dat_list <- list( T, I, Y, sphere, inherit )
+mPast2MeanSpherePresent <- stan(file='./code/mPast2Sphere.stan', data=dat_list, iter=500)
+save(mPast2MeanSpherePresent, file='./output/mPast2MeanSpherePresent.robj')
 
 
-#----------------------------------------------------------
-# ------------ Ecology models -----------
+# #----------------------------------------------------------
+# # ------------ Ecology models -----------
 
-# model mAreaTotal
-a = logtotalarea
-data = list( "T","I","Y","a" )
-parameters = c("alpha", "beta")
-# file.show("mArea.txt")
-inits = function(){ list( alpha=rnorm(T,0,5), beta=0 ) }
-mAreaTotal = bugs(data, inits = inits, parameters, "mArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mAreaTotal
+# a = logtotalarea
+# data = list( "T","I","Y","a" )
+# parameters = c("alpha", "beta")
+# # file.show("mArea.txt")
+# inits = function(){ list( alpha=rnorm(T,0,5), beta=0 ) }
+# mAreaTotal = bugs(data, inits = inits, parameters, "mArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mAreaMean
-a = logmnarea
-data = list( "T","I","Y","a" )
-parameters = c("alpha", "beta")
-# file.show("mArea.txt")
-inits = function(){ list( alpha=rnorm(T,0,5), beta=0 ) }
-mAreaMean = bugs(data, inits = inits, parameters, "mArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mAreaMean
+# a = logmnarea
+# data = list( "T","I","Y","a" )
+# parameters = c("alpha", "beta")
+# # file.show("mArea.txt")
+# inits = function(){ list( alpha=rnorm(T,0,5), beta=0 ) }
+# mAreaMean = bugs(data, inits = inits, parameters, "mArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mAreaMean
-a = logmxarea
-data = list( "T","I","Y","a" )
-parameters = c("alpha", "beta")
-# file.show("mArea.txt")
-inits = function(){ list( alpha=rnorm(T,0,5), beta=0 ) }
-mAreaMax = bugs(data, inits = inits, parameters, "mArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mAreaMean
+# a = logmxarea
+# data = list( "T","I","Y","a" )
+# parameters = c("alpha", "beta")
+# # file.show("mArea.txt")
+# inits = function(){ list( alpha=rnorm(T,0,5), beta=0 ) }
+# mAreaMax = bugs(data, inits = inits, parameters, "mArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mReefHigh
-data = list( "T","I","Y","rh" )
-parameters = c("alpha", "kappa1"  )
-mReefHigh = bugs(data, inits = NULL, parameters, "mReefHigh.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mReefHigh
+# data = list( "T","I","Y","rh" )
+# parameters = c("alpha", "kappa1"  )
+# mReefHigh = bugs(data, inits = NULL, parameters, "mReefHigh.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mReefLow
-data = list( "T","I","Y","rl" )
-parameters = c("alpha", "kappa2"  )
-mReefHigh = bugs(data, inits = NULL, parameters, "mReefLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mReefLow
+# data = list( "T","I","Y","rl" )
+# parameters = c("alpha", "kappa2"  )
+# mReefHigh = bugs(data, inits = NULL, parameters, "mReefLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mNoReefHigh
-data = list( "T","I","Y","nrh" )
-parameters = c("alpha", "kappa3"  )
-mNoReefHigh = bugs(data, inits = NULL, parameters, "mNoReefHigh.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mNoReefHigh
+# data = list( "T","I","Y","nrh" )
+# parameters = c("alpha", "kappa3"  )
+# mNoReefHigh = bugs(data, inits = NULL, parameters, "mNoReefHigh.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mNoReefHigh
-data = list( "T","I","Y","nrl" )
-parameters = c("alpha", "kappa4"  )
-mNoReefLow = bugs(data, inits = NULL, parameters, "mNoReefLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mNoReefHigh
+# data = list( "T","I","Y","nrl" )
+# parameters = c("alpha", "kappa4"  )
+# mNoReefLow = bugs(data, inits = NULL, parameters, "mNoReefLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mAreaTotalReefHigh 
-a = logtotalarea
-data = list( "T","I","Y","rh", "a" )
-parameters = c("alpha", "beta", "kappa1" )
-inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa1=rnorm(1,0,1) ) }
-mAreaTotalReefHigh = bugs(data, inits = inits, parameters, "mAreaReefHigh.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mAreaTotalReefHigh 
+# a = logtotalarea
+# data = list( "T","I","Y","rh", "a" )
+# parameters = c("alpha", "beta", "kappa1" )
+# inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa1=rnorm(1,0,1) ) }
+# mAreaTotalReefHigh = bugs(data, inits = inits, parameters, "mAreaReefHigh.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mAreaTotalReefLow
-a = logtotalarea
-data = list( "T","I","Y","rl", "a" )
-parameters = c("alpha", "beta", "kappa2" )
-inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa2=rnorm(1,0,1) ) }
-mAreaTotalReefLow = bugs(data, inits = inits, parameters, "mAreaReefLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mAreaTotalReefLow
+# a = logtotalarea
+# data = list( "T","I","Y","rl", "a" )
+# parameters = c("alpha", "beta", "kappa2" )
+# inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa2=rnorm(1,0,1) ) }
+# mAreaTotalReefLow = bugs(data, inits = inits, parameters, "mAreaReefLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mAreaTotalNoReefHigh
-a = logtotalarea
-data = list( "T","I","Y","nrh", "a" )
-parameters = c("alpha", "beta", "kappa3" )
-inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa3=rnorm(1,0,1) ) }
-mAreaTotalNoReefHigh = bugs(data, inits = inits, parameters, "mAreaNoReefHigh.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mAreaTotalNoReefHigh
+# a = logtotalarea
+# data = list( "T","I","Y","nrh", "a" )
+# parameters = c("alpha", "beta", "kappa3" )
+# inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa3=rnorm(1,0,1) ) }
+# mAreaTotalNoReefHigh = bugs(data, inits = inits, parameters, "mAreaNoReefHigh.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mAreaTotalNoReefLow 
-a = logtotalarea
-data = list( "T","I","Y","nrl", "a" )
-parameters = c("alpha", "beta", "kappa4" )
-inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa4=rnorm(1,0,1) ) }
-mAreaTotalNoReefLow = bugs(data, inits = inits, parameters, "mAreaNoReefLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mAreaTotalNoReefLow 
+# a = logtotalarea
+# data = list( "T","I","Y","nrl", "a" )
+# parameters = c("alpha", "beta", "kappa4" )
+# inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa4=rnorm(1,0,1) ) }
+# mAreaTotalNoReefLow = bugs(data, inits = inits, parameters, "mAreaNoReefLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mAreaMeanReefHigh 
-a = logmnarea
-data = list( "T","I","Y","rh", "a" )
-parameters = c("alpha", "beta", "kappa1" )
-inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa1=rnorm(1,0,1) ) }
-mAreaMeanReefHigh = bugs(data, inits = inits, parameters, "mAreaReefHigh.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mAreaMeanReefHigh 
+# a = logmnarea
+# data = list( "T","I","Y","rh", "a" )
+# parameters = c("alpha", "beta", "kappa1" )
+# inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa1=rnorm(1,0,1) ) }
+# mAreaMeanReefHigh = bugs(data, inits = inits, parameters, "mAreaReefHigh.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mAreaMeanReefLow
-a = logmnarea
-data = list( "T","I","Y","rl", "a" )
-parameters = c("alpha", "beta", "kappa2" )
-inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa2=rnorm(1,0,1) ) }
-mAreaMeanReefLow = bugs(data, inits = inits, parameters, "mAreaReefLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mAreaMeanReefLow
+# a = logmnarea
+# data = list( "T","I","Y","rl", "a" )
+# parameters = c("alpha", "beta", "kappa2" )
+# inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa2=rnorm(1,0,1) ) }
+# mAreaMeanReefLow = bugs(data, inits = inits, parameters, "mAreaReefLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mAreaMeanNoReefHigh
-a = logmnarea
-data = list( "T","I","Y","nrh", "a" )
-parameters = c("alpha", "beta", "kappa3" )
-inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa3=rnorm(1,0,1) ) }
-mAreaMeanNoReefHigh = bugs(data, inits = inits, parameters, "mAreaNoReefHigh.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mAreaMeanNoReefHigh
+# a = logmnarea
+# data = list( "T","I","Y","nrh", "a" )
+# parameters = c("alpha", "beta", "kappa3" )
+# inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa3=rnorm(1,0,1) ) }
+# mAreaMeanNoReefHigh = bugs(data, inits = inits, parameters, "mAreaNoReefHigh.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mAreaMeanNoReefLow
-a = logmnarea
-data = list( "T","I","Y","nrl", "a" )
-parameters = c("alpha", "beta", "kappa4" )
-inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa4=rnorm(1,0,1) ) }
-mAreaMeanNoReefLow = bugs(data, inits = inits, parameters, "mAreaNoReefLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mAreaMeanNoReefLow
+# a = logmnarea
+# data = list( "T","I","Y","nrl", "a" )
+# parameters = c("alpha", "beta", "kappa4" )
+# inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa4=rnorm(1,0,1) ) }
+# mAreaMeanNoReefLow = bugs(data, inits = inits, parameters, "mAreaNoReefLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mAreaTotalReefNoReefHighLow
-a = logtotalarea
-data = list( "T","I","Y","rh", "rl", "nrh", "nrl", "a" )
-parameters = c("alpha", "beta", "kappa1", "kappa2", "kappa3", "kappa4" )
-inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1), kappa3=rnorm(1,0,1) ), kappa4=rnorm(1,0,1) }
-mAreaTotalReefNoReefHighLow = bugs(data, inits = inits, parameters, "mAreaReefNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mAreaTotalReefNoReefHighLow
+# a = logtotalarea
+# data = list( "T","I","Y","rh", "rl", "nrh", "nrl", "a" )
+# parameters = c("alpha", "beta", "kappa1", "kappa2", "kappa3", "kappa4" )
+# inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1), kappa3=rnorm(1,0,1) ), kappa4=rnorm(1,0,1) }
+# mAreaTotalReefNoReefHighLow = bugs(data, inits = inits, parameters, "mAreaReefNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mAreaMeanReefNoReefHighLow
-a = logmnarea
-data = list( "T","I","Y","rh", "rl", "nrh", "nrl", "a" )
-parameters = c("alpha", "beta", "kappa1", "kappa2", "kappa3", "kappa4" )
-inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1), kappa3=rnorm(1,0,1) ), kappa4=rnorm(1,0,1) }
-mAreaMeanReefNoReefHighLow = bugs(data, inits = inits, parameters, "mAreaReefNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mAreaMeanReefNoReefHighLow
+# a = logmnarea
+# data = list( "T","I","Y","rh", "rl", "nrh", "nrl", "a" )
+# parameters = c("alpha", "beta", "kappa1", "kappa2", "kappa3", "kappa4" )
+# inits = function(){ list( alpha=rnorm(T,0,1), beta = 0, kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1), kappa3=rnorm(1,0,1) ), kappa4=rnorm(1,0,1) }
+# mAreaMeanReefNoReefHighLow = bugs(data, inits = inits, parameters, "mAreaReefNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-#----------------------------------------------------------
-#----------- Inheritance and ecology models -----------
+# #----------------------------------------------------------
+# #----------- Inheritance and ecology models -----------
 
-# model mPastMeanAreaMean
-inherit = inheritmean; a = logmnarea
-data = list( "T","I","Y","inherit","a" )
-parameters = c("alpha", "beta", "psi", "psi.tau")
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0 ) }
-mPastMeanAreaMean = bugs(data, inits = inits, parameters, "mPastArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mPastMeanAreaMean
+# inherit = inheritmean; a = logmnarea
+# data = list( "T","I","Y","inherit","a" )
+# parameters = c("alpha", "beta", "psi", "psi.tau")
+# inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0 ) }
+# mPastMeanAreaMean = bugs(data, inits = inits, parameters, "mPastArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mPastMeanAreaTotal
-inherit = inheritmean; a = logtotalarea
-data = list( "T","I","Y","inherit","a" )
-parameters = c("alpha", "beta", "psi", "psi.tau")
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0 ) }
-mPastMeanAreaTotal = bugs(data, inits = inits, parameters, "mPastArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mPastMeanAreaTotal
+# inherit = inheritmean; a = logtotalarea
+# data = list( "T","I","Y","inherit","a" )
+# parameters = c("alpha", "beta", "psi", "psi.tau")
+# inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0 ) }
+# mPastMeanAreaTotal = bugs(data, inits = inits, parameters, "mPastArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mPastPresentAreaMean
-inherit = inheritpresent; a = logmnarea
-data = list( "T","I","Y","inherit","a" )
-parameters = c("alpha", "beta", "psi", "psi.tau")
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0 ) }
-mPastPresentAreaMean = bugs(data, inits = inits, parameters, "mPastArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mPastPresentAreaMean
+# inherit = inheritpresent; a = logmnarea
+# data = list( "T","I","Y","inherit","a" )
+# parameters = c("alpha", "beta", "psi", "psi.tau")
+# inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0 ) }
+# mPastPresentAreaMean = bugs(data, inits = inits, parameters, "mPastArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mPastPresentAreaTotal
-inherit = inheritpresent; a = logtotalarea
-data = list( "T","I","Y","inherit","a" )
-parameters = c("alpha", "beta", "psi", "psi.tau")
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0 ) }
-mPastPresentAreaTotal = bugs(data, inits = inits, parameters, "mPastArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mPastPresentAreaTotal
+# inherit = inheritpresent; a = logtotalarea
+# data = list( "T","I","Y","inherit","a" )
+# parameters = c("alpha", "beta", "psi", "psi.tau")
+# inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0 ) }
+# mPastPresentAreaTotal = bugs(data, inits = inits, parameters, "mPastArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mPastMeanAreaMeanReefHighLow
-a = logmnarea; inherit=inheritmean
-data = list( "T","I","Y","inherit","a", "rl", "rh" )
-parameters = c("alpha", "beta", "psi", "psi.tau", "kappa1", "kappa2" )
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0, kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1) ) }
-mPastMeanAreaMeanReefHighLow = bugs(data, inits = inits, parameters, "mPastAreaReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mPastMeanAreaMeanReefHighLow
+# a = logmnarea; inherit=inheritmean
+# data = list( "T","I","Y","inherit","a", "rl", "rh" )
+# parameters = c("alpha", "beta", "psi", "psi.tau", "kappa1", "kappa2" )
+# inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0, kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1) ) }
+# mPastMeanAreaMeanReefHighLow = bugs(data, inits = inits, parameters, "mPastAreaReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mPastPresentAreaMeanReefHighLow
-a = logmnarea; inherit=inheritpresent
-data = list( "T","I","Y","inherit","a", "rl", "rh" )
-parameters = c("alpha", "beta", "psi", "psi.tau", "kappa1", "kappa2" )
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0, kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1) ) }
-mPastPresentAreaMeanReefHighLow = bugs(data, inits = inits, parameters, "mPastAreaReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mPastPresentAreaMeanReefHighLow
+# a = logmnarea; inherit=inheritpresent
+# data = list( "T","I","Y","inherit","a", "rl", "rh" )
+# parameters = c("alpha", "beta", "psi", "psi.tau", "kappa1", "kappa2" )
+# inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0, kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1) ) }
+# mPastPresentAreaMeanReefHighLow = bugs(data, inits = inits, parameters, "mPastAreaReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mPastMeanAreaMeanNoReefHighLow
-a = logmnarea; inherit=inheritmean
-data = list( "T","I","Y","inherit","a", "nrl", "nrh" )
-parameters = c("alpha", "beta", "psi", "psi.tau", "kappa3", "kappa4" )
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0, kappa4=rnorm(1,0,1), kappa3=rnorm(1,0,1) ) }
-mPastMeanAreaMeanNoReefHighLow = bugs(data, inits = inits, parameters, "mPastAreaNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mPastMeanAreaMeanNoReefHighLow
+# a = logmnarea; inherit=inheritmean
+# data = list( "T","I","Y","inherit","a", "nrl", "nrh" )
+# parameters = c("alpha", "beta", "psi", "psi.tau", "kappa3", "kappa4" )
+# inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0, kappa4=rnorm(1,0,1), kappa3=rnorm(1,0,1) ) }
+# mPastMeanAreaMeanNoReefHighLow = bugs(data, inits = inits, parameters, "mPastAreaNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mPastPresentAreaMeanNoReefHighLow
-a = logmnarea; inherit=inheritpresent
-data = list( "T","I","Y","inherit","a", "nrl", "nrh" )
-parameters = c("alpha", "beta", "psi", "psi.tau", "kappa3", "kappa4" )
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0, kappa4=rnorm(1,0,1), kappa3=rnorm(1,0,1) ) }
-mPastPresentAreaMeanNoReefHighLow = bugs(data, inits = inits, parameters, "mPastAreaNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mPastPresentAreaMeanNoReefHighLow
+# a = logmnarea; inherit=inheritpresent
+# data = list( "T","I","Y","inherit","a", "nrl", "nrh" )
+# parameters = c("alpha", "beta", "psi", "psi.tau", "kappa3", "kappa4" )
+# inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0, kappa4=rnorm(1,0,1), kappa3=rnorm(1,0,1) ) }
+# mPastPresentAreaMeanNoReefHighLow = bugs(data, inits = inits, parameters, "mPastAreaNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-#--
+# #--
 
-# model mSphereMeanAreaMean
-sphere = spheremean; a = logmnarea
-data = list( "T","I","Y","sphere","a" )
-parameters = c("alpha", "beta", "lambda")
-inits = function(){ list( alpha=rnorm(T,0,1), lambda=rnorm(1,0,1), beta=rnorm(1,0,1) ) }
-mSphereMeanAreaMean = bugs(data, inits = inits, parameters, "mSphereArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mSphereMeanAreaMean
+# sphere = spheremean; a = logmnarea
+# data = list( "T","I","Y","sphere","a" )
+# parameters = c("alpha", "beta", "lambda")
+# inits = function(){ list( alpha=rnorm(T,0,1), lambda=rnorm(1,0,1), beta=rnorm(1,0,1) ) }
+# mSphereMeanAreaMean = bugs(data, inits = inits, parameters, "mSphereArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mSphereMeanAreaTotal
-sphere = spheremean; a = logtotalarea
-data = list( "T","I","Y","sphere","a" )
-parameters = c("alpha", "beta", "lambda" )
-inits = function(){ list( alpha=rnorm(T,0,1), lambda=rbinom(1,0,1), beta=0 ) }
-mSphereMeanAreaTotal = bugs(data, inits = inits, parameters, "mSphereArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mSphereMeanAreaTotal
+# sphere = spheremean; a = logtotalarea
+# data = list( "T","I","Y","sphere","a" )
+# parameters = c("alpha", "beta", "lambda" )
+# inits = function(){ list( alpha=rnorm(T,0,1), lambda=rbinom(1,0,1), beta=0 ) }
+# mSphereMeanAreaTotal = bugs(data, inits = inits, parameters, "mSphereArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mSpherePresentAreaMean
-sphere = spherepresent; a = logmnarea
-data = list( "T","I","Y","sphere","a" )
-parameters = c("alpha", "beta", "lambda")
-inits = function(){ list( alpha=rnorm(T,0,1), lambda=rnorm(1,0,1), beta=rnorm(1,0,1) ) }
-mSpherePresentAreaMean = bugs(data, inits = inits, parameters, "mSphereArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mSpherePresentAreaMean
+# sphere = spherepresent; a = logmnarea
+# data = list( "T","I","Y","sphere","a" )
+# parameters = c("alpha", "beta", "lambda")
+# inits = function(){ list( alpha=rnorm(T,0,1), lambda=rnorm(1,0,1), beta=rnorm(1,0,1) ) }
+# mSpherePresentAreaMean = bugs(data, inits = inits, parameters, "mSphereArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mSpherePresentAreaTotal
-sphere = spherepresent; a = logtotalarea
-data = list( "T","I","Y","sphere","a" )
-parameters = c("alpha", "beta", "lambda" )
-inits = function(){ list( alpha=rnorm(T,0,1), lambda=rbinom(1,0,1), beta=0 ) }
-mSpherePresentAreaTotal = bugs(data, inits = inits, parameters, "mSphereArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mSpherePresentAreaTotal
+# sphere = spherepresent; a = logtotalarea
+# data = list( "T","I","Y","sphere","a" )
+# parameters = c("alpha", "beta", "lambda" )
+# inits = function(){ list( alpha=rnorm(T,0,1), lambda=rbinom(1,0,1), beta=0 ) }
+# mSpherePresentAreaTotal = bugs(data, inits = inits, parameters, "mSphereArea.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mSphereMeanAreaMeanReefHighLow
-a = logmnarea; sphere=spheremean
-data = list( "T","I","Y","sphere","a", "rl", "rh" )
-parameters = c("alpha", "beta", "lambda", "kappa1", "kappa2" )
-inits = function(){ list( alpha=rnorm(T,0,1), lambda=rnorm(1,0,1), beta=0, kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1) ) }
-mSphereMeanAreaMeanReefHighLow = bugs(data, inits = inits, parameters, "mSphereAreaReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mSphereMeanAreaMeanReefHighLow
+# a = logmnarea; sphere=spheremean
+# data = list( "T","I","Y","sphere","a", "rl", "rh" )
+# parameters = c("alpha", "beta", "lambda", "kappa1", "kappa2" )
+# inits = function(){ list( alpha=rnorm(T,0,1), lambda=rnorm(1,0,1), beta=0, kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1) ) }
+# mSphereMeanAreaMeanReefHighLow = bugs(data, inits = inits, parameters, "mSphereAreaReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mSpherePresentAreaMeanReefHighLow
-a = logmnarea; sphere=spherepresent
-data = list( "T","I","Y","sphere","a", "rl", "rh" )
-parameters = c("alpha", "beta", "lambda", "kappa1", "kappa2" )
-inits = function(){ list( alpha=rnorm(T,0,1), lambda=rnorm(1,0,1), beta=0, kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1) ) }
-mSpherePresentAreaMeanReefHighLow = bugs(data, inits = inits, parameters, "mSphereAreaReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mSpherePresentAreaMeanReefHighLow
+# a = logmnarea; sphere=spherepresent
+# data = list( "T","I","Y","sphere","a", "rl", "rh" )
+# parameters = c("alpha", "beta", "lambda", "kappa1", "kappa2" )
+# inits = function(){ list( alpha=rnorm(T,0,1), lambda=rnorm(1,0,1), beta=0, kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1) ) }
+# mSpherePresentAreaMeanReefHighLow = bugs(data, inits = inits, parameters, "mSphereAreaReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mSphereMeanAreaMeanNoReefHighLow
-a = logmnarea; sphere=spheremean
-data = list( "T","I","Y","sphere","a", "nrl", "nrh" )
-parameters = c("alpha", "beta", "lambda", "kappa3", "kappa4" )
-inits = function(){ list( alpha=rnorm(T,0,1), lambda=rnorm(1,0,1), beta=rnorm(1,0,1), kappa4=rnorm(1,0,1), kappa3=rnorm(1,0,1) ) }
-mSphereMeanAreaMeanNoReefHighLow = bugs(data, inits = inits, parameters, "mSphereAreaNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mSphereMeanAreaMeanNoReefHighLow
+# a = logmnarea; sphere=spheremean
+# data = list( "T","I","Y","sphere","a", "nrl", "nrh" )
+# parameters = c("alpha", "beta", "lambda", "kappa3", "kappa4" )
+# inits = function(){ list( alpha=rnorm(T,0,1), lambda=rnorm(1,0,1), beta=rnorm(1,0,1), kappa4=rnorm(1,0,1), kappa3=rnorm(1,0,1) ) }
+# mSphereMeanAreaMeanNoReefHighLow = bugs(data, inits = inits, parameters, "mSphereAreaNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mSpherePresentAreaMeanNoReefHighLow
-a = logmnarea; sphere=spherepresent
-data = list( "T","I","Y","sphere","a", "nrl", "nrh" )
-parameters = c("alpha", "beta", "lambda", "kappa3", "kappa4" )
-inits = function(){ list( alpha=rnorm(T,0,1), lambda=rnorm(1,0,1), beta=rnorm(1,0,1), kappa4=rnorm(1,0,1), kappa3=rnorm(1,0,1) ) }
-mSpherePresentAreaMeanNoReefHighLow = bugs(data, inits = inits, parameters, "mSphereAreaNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mSpherePresentAreaMeanNoReefHighLow
+# a = logmnarea; sphere=spherepresent
+# data = list( "T","I","Y","sphere","a", "nrl", "nrh" )
+# parameters = c("alpha", "beta", "lambda", "kappa3", "kappa4" )
+# inits = function(){ list( alpha=rnorm(T,0,1), lambda=rnorm(1,0,1), beta=rnorm(1,0,1), kappa4=rnorm(1,0,1), kappa3=rnorm(1,0,1) ) }
+# mSpherePresentAreaMeanNoReefHighLow = bugs(data, inits = inits, parameters, "mSphereAreaNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mPastPresentSpherePresentAreaMeanReefHighLow
-a = logmnarea; inherit=inheritpresent; sphere = spherepresent
-data = list( "T","I","Y","inherit","a", "rl", "rh", "sphere" )
-parameters = c("alpha", "beta", "psi", "psi.tau", "lambda", "kappa1", "kappa2" )
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0, kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1), lambda=rnorm(1,0,1) ) }
-mPastPresentSpherePresentAreaMeanReefHighLow = bugs(data, inits = inits, parameters, "mPastSphereAreaReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mPastPresentSpherePresentAreaMeanReefHighLow
+# a = logmnarea; inherit=inheritpresent; sphere = spherepresent
+# data = list( "T","I","Y","inherit","a", "rl", "rh", "sphere" )
+# parameters = c("alpha", "beta", "psi", "psi.tau", "lambda", "kappa1", "kappa2" )
+# inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0, kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1), lambda=rnorm(1,0,1) ) }
+# mPastPresentSpherePresentAreaMeanReefHighLow = bugs(data, inits = inits, parameters, "mPastSphereAreaReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mPastPresentSpherePresentAreaMeanReefHighLow
-a = logmnarea; inherit=inheritpresent; sphere = spherepresent
-data = list( "T","I","Y","inherit","a", "rl", "rh", "sphere" )
-parameters = c("alpha", "beta", "psi", "psi.tau", "lambda", "kappa1", "kappa2" )
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0, kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1), lambda=rnorm(1,0,1) ) }
-mPastPresentSpherePresentAreaMeanReefHighLow = bugs(data, inits = inits, parameters, "mPastSphereAreaReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mPastPresentSpherePresentAreaMeanReefHighLow
+# a = logmnarea; inherit=inheritpresent; sphere = spherepresent
+# data = list( "T","I","Y","inherit","a", "rl", "rh", "sphere" )
+# parameters = c("alpha", "beta", "psi", "psi.tau", "lambda", "kappa1", "kappa2" )
+# inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0, kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1), lambda=rnorm(1,0,1) ) }
+# mPastPresentSpherePresentAreaMeanReefHighLow = bugs(data, inits = inits, parameters, "mPastSphereAreaReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mPastPresentSpherePresentAreaMeanNoReefHighLow
-a = logmnarea; inherit=inheritpresent; sphere = spherepresent
-data = list( "T","I","Y","inherit","a", "nrl", "nrh", "sphere" )
-parameters = c("alpha", "beta", "psi", "psi.tau", "lambda", "kappa3", "kappa4" )
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0, kappa4=rnorm(1,0,1), kappa3=rnorm(1,0,1), lambda=rnorm(1,0,1) ) }
-mPastPresentSpherePresentAreaMeanNoReefHighLow = bugs(data, inits = inits, parameters, "mPastSphereAreaNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mPastPresentSpherePresentAreaMeanNoReefHighLow
+# a = logmnarea; inherit=inheritpresent; sphere = spherepresent
+# data = list( "T","I","Y","inherit","a", "nrl", "nrh", "sphere" )
+# parameters = c("alpha", "beta", "psi", "psi.tau", "lambda", "kappa3", "kappa4" )
+# inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0, kappa4=rnorm(1,0,1), kappa3=rnorm(1,0,1), lambda=rnorm(1,0,1) ) }
+# mPastPresentSpherePresentAreaMeanNoReefHighLow = bugs(data, inits = inits, parameters, "mPastSphereAreaNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mPastPresentSpherePresentAreaMeanNoReefHighLow
-a = logmnarea; inherit=inheritpresent; sphere = spherepresent
-data = list( "T","I","Y","inherit","a", "nrl", "nrh", "sphere" )
-parameters = c("alpha", "beta", "psi", "psi.tau", "lambda", "kappa3", "kappa4" )
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0, kappa4=rnorm(1,0,1), kappa3=rnorm(1,0,1), lambda=rnorm(1,0,1) ) }
-mPastPresentSpherePresentAreaMeanNoReefHighLow = bugs(data, inits = inits, parameters, "mPastSphereAreaNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mPastPresentSpherePresentAreaMeanNoReefHighLow
+# a = logmnarea; inherit=inheritpresent; sphere = spherepresent
+# data = list( "T","I","Y","inherit","a", "nrl", "nrh", "sphere" )
+# parameters = c("alpha", "beta", "psi", "psi.tau", "lambda", "kappa3", "kappa4" )
+# inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(T,1,0.5), beta=0, kappa4=rnorm(1,0,1), kappa3=rnorm(1,0,1), lambda=rnorm(1,0,1) ) }
+# mPastPresentSpherePresentAreaMeanNoReefHighLow = bugs(data, inits = inits, parameters, "mPastSphereAreaNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mPast2PresentSpherePresentAreaMeanReefHighLow
-sphere = spherepresent; inherit = inheritpresent; a = logmnarea
-data = list( "T","I","Y","sphere", "inherit", "a", "rl", "rh" )
-parameters = c("alpha", "psi", "psi.tau", "lambda", "beta", "kappa1", "kappa2" )
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(1,1,0.5), beta=0, lambda=rnorm(1,0,1), kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1) ) }
-mPast2PresentSpherePresentAreaMeanReefHighLow = bugs(data, inits = inits, parameters, "mPast2SphereAreaReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mPast2PresentSpherePresentAreaMeanReefHighLow
+# sphere = spherepresent; inherit = inheritpresent; a = logmnarea
+# data = list( "T","I","Y","sphere", "inherit", "a", "rl", "rh" )
+# parameters = c("alpha", "psi", "psi.tau", "lambda", "beta", "kappa1", "kappa2" )
+# inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(1,1,0.5), beta=0, lambda=rnorm(1,0,1), kappa1=rnorm(1,0,1), kappa2=rnorm(1,0,1) ) }
+# mPast2PresentSpherePresentAreaMeanReefHighLow = bugs(data, inits = inits, parameters, "mPast2SphereAreaReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-# model mPast2PresentSpherePresentAreaMeanNoReefHighLow
-sphere = spherepresent; inherit = inheritpresent; a = logmnarea
-data = list( "T","I","Y","sphere", "inherit", "a", "nrl", "nrh" )
-parameters = c("alpha", "psi", "psi.tau", "lambda", "beta", "kappa3", "kappa4" )
-inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(1,1,0.5), beta=0, lambda=rnorm(1,0,1), kappa3=rnorm(1,0,1), kappa4=rnorm(1,0,1) ) }
-mPast2PresentSpherePresentAreaMeanNoReefHighLow = bugs(data, inits = inits, parameters, "mPast2SphereAreaNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # model mPast2PresentSpherePresentAreaMeanNoReefHighLow
+# sphere = spherepresent; inherit = inheritpresent; a = logmnarea
+# data = list( "T","I","Y","sphere", "inherit", "a", "nrl", "nrh" )
+# parameters = c("alpha", "psi", "psi.tau", "lambda", "beta", "kappa3", "kappa4" )
+# inits = function(){ list( alpha=rnorm(T,0,1), psi=rnorm(1,0,1), psi.tau=rbinom(1,1,0.5), beta=0, lambda=rnorm(1,0,1), kappa3=rnorm(1,0,1), kappa4=rnorm(1,0,1) ) }
+# mPast2PresentSpherePresentAreaMeanNoReefHighLow = bugs(data, inits = inits, parameters, "mPast2SphereAreaNoReefHighLow.txt", n.chains=3, n.iter=iter, clearWD = TRUE) 
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
 
 #----------------------------------------------------------
@@ -575,7 +549,7 @@ info.table = function( res ){
 	names(table) = c("dDIC", "DIC", "Past", "Sphere", "Area", "Reef.High", "Reef.Low", "No.Reef.High", "No.Reef.Low" )
 	table = table[ order(em.delta.dic, decreasing = TRUE),]
 	table
-	}
+}
 #----------------------------------------------------------	
 
 # load models from directory
@@ -584,17 +558,17 @@ info.table = function( res ){
 #for( i in 1:length(res.str.dir)) load(file = res.str.dir[[i]][1])
 #for( i in 1:length(res.str.dir)) print(res.str.dir[[i]][1])
 
-# list of results
-res.na = lapply( ls(), function(z) ifelse( strsplit(z,NULL)[[1]][1]=="m",z, NA ) )
-res.str = subset( res.na, subset = is.na(res.na)==FALSE )
-res = lapply( res.str, function(z) get(z) )
-names(res) = res.str
+# # list of results
+# res.na = lapply( ls(), function(z) ifelse( strsplit(z,NULL)[[1]][1]=="m",z, NA ) )
+# res.str = subset( res.na, subset = is.na(res.na)==FALSE )
+# res = lapply( res.str, function(z) get(z) )
+# names(res) = res.str
 
-# call to organizing function
-table = info.table( res )
+# # call to organizing function
+# table = info.table( res )
 
-# save output to file
-write.table(table, file = paste(getwd(),traitset,paste( saveas,".csv", sep="" ),sep = "/"),row.names = TRUE, col.names = TRUE, sep=",")
-save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
+# # save output to file
+# write.table(table, file = paste(getwd(),traitset,paste( saveas,".csv", sep="" ),sep = "/"),row.names = TRUE, col.names = TRUE, sep=",")
+# save.image( file = paste(getwd(),traitset,paste( saveas,".rdata", sep="" ),sep = "/") )
 
-}
+# }
