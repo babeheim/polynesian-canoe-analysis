@@ -1,15 +1,15 @@
 
 rm(list=ls())
 
-trait_data <- read.csv( file <- "./inputs/traits_long.csv", stringsAsFactors=FALSE)
+trait_data <- read.csv( file <- "./inputs/traits.csv", stringsAsFactors=FALSE)
 d <- read.csv( file <- "./inputs/islanddata.csv", stringsAsFactors=FALSE, na.strings="." )
 
 islands_list <- sort(unique(d$archipelago))
 
-# s and i tables: immigration and sphere of influence
-# also make as long
+trait_data$archipelago <- islands_list[match(substr(trait_data$islands, 1, 3), substr(islands_list, 1, 3))]
 
-# unfinsihed code...
+neighbor_cols <- c("sHawaii", "sMarq", "sTuam", "sSoci", "sAust",
+    "sCook", "sMani", "sNewz", "sSamo", "sTong", "sFiji")
 
 focal <- rep(islands_list, each=11)
 neighbor <- rep(neighbor_cols, times=11)
@@ -17,35 +17,62 @@ neighbor_ties <- data.frame( focal, neighbor )
 neighbor_ties$neighbor <- as.character(neighbor_ties$neighbor)
 neighbor_ties$tie <- 0
 
-neighbor_cols <- c("sHawaii", "sMarq", "sTuam", "sSoci", "sAust",
-	"sCook", "sMani", "sNewz", "sSamo", "sTong", "sFiji")
-
 for(i in 1:length(neighbor_cols)){
-	nearby <- unique(d$archipelago[which(d[,neighbor_cols[i]]==1)])
-	tar <- which(neighbor_ties$focal %in% nearby & neighbor_ties$neighbor==neighbor_cols[i])
-	if(length(tar) > 0) neighbor_ties$tie[tar] <- 1
+    nearby <- unique(d$archipelago[which(d[,neighbor_cols[i]]==1)])
+    tar <- which(neighbor_ties$focal %in% nearby & neighbor_ties$neighbor==neighbor_cols[i])
+    if(length(tar) > 0) neighbor_ties$tie[tar] <- 1
 }
 
 drop <- which(neighbor_ties$tie==0)
 neighbor_ties <- neighbor_ties[-drop,]
+neighbor_ties$neighbor <- islands_list[match(substr(neighbor_ties$neighbor, 2, 4), substr(islands_list, 1, 3))]
+neighbor_ties <- neighbor_ties[,-which(colnames(neighbor_ties)=="tie")]
 
+neighbor_ties$focal <- as.character(neighbor_ties$focal)
+neighbor_ties$neighbor <- as.character(neighbor_ties$neighbor)
 
+ancestor_cols <- c("iHawaii", "iMarq", "iTuam", "iSoci", "iAust",
+    "iCook", "iMani", "iNewz", "iSamo", "iTong", "iFiji")
+
+focal <- rep(islands_list, each=11)
+ancestor <- rep(ancestor_cols, times=11)
+ancestor_ties <- data.frame( focal, ancestor )
+ancestor_ties$ancestor <- as.character(ancestor_ties$ancestor)
+ancestor_ties$tie <- 0
+
+for(i in 1:length(ancestor_cols)){
+    nearby <- unique(d$archipelago[which(d[,ancestor_cols[i]]==1)])
+    tar <- which(ancestor_ties$focal %in% nearby & ancestor_ties$ancestor==ancestor_cols[i])
+    if(length(tar) > 0) ancestor_ties$tie[tar] <- 1
+}
+
+drop <- which(ancestor_ties$tie==0)
+ancestor_ties <- ancestor_ties[-drop,]
+ancestor_ties$ancestor <- islands_list[match(substr(ancestor_ties$ancestor, 2, 4), substr(islands_list, 1, 3))]
+
+ancestor_ties <- ancestor_ties[,-which(colnames(ancestor_ties)=="tie")]
+
+ancestor_ties$focal <- as.character(ancestor_ties$focal)
+ancestor_ties$ancestor <- as.character(ancestor_ties$ancestor)
 
 # these will be used to construct trait-level predictors...
 
+trait_data$neighbor_trait_count <- 0
+trait_data$ancestor_trait_count <- 0
+
 for(i in 1:nrow(trait_data)){
 
-	my_trait <- trait_data$traitID
-	my_archipelago <- trait_data$islands
+    my_trait <- trait_data$traitID[i]
+    my_archipelago <- trait_data$archipelago[i]
 
-	my_neighbor_archipelagos <- d$archipelago[]
-	my_ancestor_archipelagos <- d$archipelago[]
+    my_neighbor_archipelagos <- neighbor_ties$neighbor[neighbor_ties$focal==my_archipelago]
+    my_ancestor_archipelagos <- ancestor_ties$ancestor[ancestor_ties$focal==my_archipelago]
 
-	neighbor_rows <- which(trait_data$islands %in% my_neighbor_archipelagos & trait_data$traitID==my_trait)
-	neighbor_trait_count <- sum(trait_data$present[neighbor_rows])
+    neighbor_rows <- which(trait_data$archipelago %in% my_neighbor_archipelagos & trait_data$traitID==my_trait)
+    if(length(neighbor_rows)>0) trait_data$neighbor_trait_count[i] <- sum(trait_data$present[neighbor_rows])
 
-	ancestor_rows <- which(trait_data$islands %in% my_ancestor_archipelagos & trait_data$traitID==my_trait)
-	ancestor_trait_count <- sum(trait_data$present[ancestor_rows])
+    ancestor_rows <- which(trait_data$archipelago %in% my_ancestor_archipelagos & trait_data$traitID==my_trait)
+    if(length(ancestor_rows)>0) trait_data$ancestor_trait_count[i] <- sum(trait_data$present[ancestor_rows])
 
 }
 
@@ -96,512 +123,103 @@ trait_data$islands <- group_reg$islands[link]
 trait_data$low <- group_reg$low[link]
 trait_data$area_sum <- group_reg$area_sum[link]
 
+trait_data$log_area_sum <- log(trait_data$area_sum / 1e8)
 
+
+
+library(rethinking)
 
 model0 <- alist(
-	present ~ bernoulli(p),
-	logit(p) <- a,
-	a ~ normal(0, 1)
+    present ~ bernoulli(p),
+    logit(p) <- a,
+    a ~ normal(0, 10)
 )
 
 m0 <- map2stan(model0, data=trait_data)
 
 model1 <- alist(
-	present ~ bernoulli(p),
-	logit(p) <- a + a_trait[trait],
-	a ~ normal(0, 1),
-	a_trait[trait] ~ normal(0, 0.1)
+    present ~ bernoulli(p),
+    logit(p) <- a + a_trait[trait],
+    a ~ normal(0, 10),
+    a_trait[trait] ~ normal(0, 3)
 )
 
 m1 <- map2stan(model1, data=trait_data)
 
 model2 <- alist(
-	present ~ bernoulli(p),
-	logit(p) <- a + a_cat[cat] + a_group[group],
-	a ~ normal(0, 1),
-	a_cat[cat] ~ normal(0, 0.1),
-	a_group[group] ~ normal(0, 0.1)
+    present ~ bernoulli(p),
+    logit(p) <- a + a_cat[cat] + a_group[group],
+    a ~ normal(0, 4),
+    a_cat[cat] ~ normal(0, 3),
+    a_group[group] ~ normal(0, 3)
 )
 
 m2 <- map2stan(model2, data=trait_data)
 
 
-trait_data$log_area_sum <- log(trait_data$area_sum / 1e8)
 
 model3 <- alist(
-	present ~ bernoulli(p),
-	logit(p) <- a + a_cat[cat] + a_group[group] 
-		+ b_low*low + b_area*log_area_sum,
-	a ~ normal(0, 1),
-	a_cat[cat] ~ normal(0, 0.1),
-	a_group[group] ~ normal(0, 0.1),
-	b_low ~ normal(0, 1),
-	b_area ~ normal(0, 1)
+    present ~ bernoulli(p),
+    logit(p) <- a + a_cat[cat] + a_group[group] 
+        + b_low*low + b_area*log_area_sum,
+    a ~ normal(0, 10),
+    a_cat[cat] ~ normal(0, 3),
+    a_group[group] ~ normal(0, 3),
+    b_low ~ normal(0, 1),
+    b_area ~ normal(0, 1)
 )
 
 m3 <- map2stan(model3, data=trait_data, cores=3, chains=3)
 
 # do different categories of trait have idff relationships with area?
 
-
 # this is the full model:
+
 model4 <- alist(
-	present ~ bernoulli(p),
-	logit(p) <- a + a_trait[trait] + a_group[group] 
-		+ b_low*low + b_area*area_sum
-		+ b_ancestor * ancestor_trait_count
-		+ b_neighbor * neighbor_trait_count,
-	a ~ normal(0, 1),
-	a_trait[trait] ~ normal(0, 2),
-	a_group[group] ~ normal(0, 2),
-	b_low ~ normal(0, 1),
-	b_area ~ normal(0, 1)
+    present ~ bernoulli(p),
+    logit(p) <- a + a_cat[cat] + a_group[group] 
+        + b_low*low + b_area*log_area_sum
+        + b_ancestor * ancestor_trait_count
+        + b_neighbor * neighbor_trait_count,
+    a ~ normal(0, 1),
+    a_cat[cat] ~ normal(0, 1),
+    a_group[group] ~ normal(0, 1),
+    b_low ~ normal(0, 1),
+    b_area ~ normal(0, 1),
+    b_ancestor ~ normal(0, 1),
+    b_neighbor ~ normal(0, 1)
 )
 
-m4 <- map2stan(model3, data=trait_data)
+m4 <- map2stan(model4, data=trait_data)
+
+
+model5 <- alist(
+    present ~ bernoulli(p),
+    logit(p) <- a + a_trait[trait] + a_cat[cat] + a_group[group] 
+        + b_low*low + b_area*log_area_sum
+        + b_ancestor * ancestor_trait_count
+        + b_neighbor * neighbor_trait_count,
+    a ~ normal(0, 10),
+    a_trait[trait] ~ normal(0, 3),
+    a_cat[cat] ~ normal(0, 3),
+    a_group[group] ~ normal(0, 3),
+    b_low ~ normal(0, 1),
+    b_area ~ normal(0, 1),
+    b_ancestor ~ normal(0, 1),
+    b_neighbor ~ normal(0, 1)
+)
+
+m5 <- map2stan(model5, data=trait_data, chains=3, cores=3, iter=500)
+
+# imputation: for fiji/samoa/tonga we dont know what their ancestors had, but we might be able to
+# impute it...so, for ancestor_trait_count we need them to be NA
+# and then do an imputation based on the distribution? i dunno...
+
+
+# the next idea is that each canoe type has a different reationship with the outcome
+
+# area is not showing up as predictive
+# but we're using log area and including mega-island of NZ
+# it could be interesting if there's no evidence smaller islands had less complex
+# toolkits! 
 
-
-
-
-
-
-
-
-# --------------------------------------
-# LOOP OVER ALL SUBSETS OF CANOE TRAITS
-# --------------------------------------
-traittypes <- c("paddle", "hull", "decoration", "sailrigging", "doublecanoe", "outrigger", "all")
-
-# for( j in 1:length(traittypes) ){
-
-# if(j>1) rm(list <- unlist(res.str))
-
-
-traitset <- traittypes[1] # can be "paddle", "hull", "decoration", "sailrigging", "doublecanoe", "outrigger", "all"
-
-# ------------------------------------------------------------------
-# READ IN DATA
-# ------------------------------------------------------------------
-trait_data <- read.csv( file <- "./inputs/traits.csv", stringsAsFactors=FALSE)
-d <- read.csv( file <- "./inputs/islanddata.csv", stringsAsFactors=FALSE, na.strings="." )
-
-
-
-
-d$sqkm <- d$sqkm * 1e6
-# convert to square meters so everthing is >1 (for logging)
-
-# ------------------------------------------------------------------
-# CREATE ECOLOGICAL PREDICTORS
-# ------------------------------------------------------------------
-archipelago_list <- unique(d$archipelago) # list of unique island groups
-
-# area covariates, all logged
-# an educated guess since there are countless numbers of atolls with no data, and this is approximately their island size
-
-area <- tapply(d$sqkm, d$archipelago, function(z) sum(z, na.rm=TRUE))
-area <- area[archipelago_list]
-
-log_total_area <- tapply(d$sqkm, d$archipelago, function(z) sum( log(z) , na.rm=TRUE))
-log_total_area <- log_total_area[archipelago_list]
-
-log_mean_area <- tapply(d$sqkm, d$archipelago, function(z) mean( log(z) , na.rm=TRUE))
-log_mean_area <- log_mean_area[archipelago_list]
-
-log_max_area <- tapply(d$sqkm, d$archipelago, function(z) max( log(z) , na.rm=TRUE))
-
-tuamotors_island_sqkm <- c(170.0, 10.0, 7.0, 4.0, 4.0, 1.5, 1.5, 1.5, 
-    1.5, 4.0, 8.0, 9.0, 600.0,  24.0, 3.0, rep( 10, 64 ) ) 
-
-# keep in mind there's a big bug around here somewhere...
-# island type covariates
-reef_high <- sapply( archipelago_list, function(z){ x=d[,"archipelago"]==z; sum( d[x,"high"]*d[x,"reef"]*d[x,"sqkm"], na.rm=TRUE )/area[z] } )
-reef_low <- sapply( archipelago_list, function(z){ x=d[,"archipelago"]==z; sum( c(d[x,"atoll"]*d[x,"reef"]*d[x,"sqkm"],d[x,"makatea"]*d[x,"reef"]*d[x,"sqkm"]), na.rm=TRUE )/area[z] } )
-makatea <- sapply( archipelago_list, function(z){ x=d[,"archipelago"]==z; sum( c(d[x,"makatea"]*d[x,"reef"]*d[x,"sqkm"]), na.rm=TRUE )/area[z] } )
-
-reeflow_mean_area <- sapply( archipelago_list, function(z){ x=d[,"archipelago"]==z ; mean( c(d[x,"atoll"]*d[x,"reef"]*d[x,"sqkm"],d[x,"makatea"]*d[x,"reef"]*d[x,"sqkm"]), na.rm=TRUE ) } )
-reeflow_max_area <- sapply( archipelago_list, function(z){ x=d[,"archipelago"]==z ; max( c(d[x,"atoll"]*d[x,"reef"]*d[x,"sqkm"],d[x,"makatea"]*d[x,"reef"]*d[x,"sqkm"]), na.rm=TRUE ) } )
-
-atoll <- sapply( archipelago_list, function(z) { x=d[,"archipelago"]==z; sum( d[x,"atoll"]*d[x,"sqkm"], na.rm=TRUE )/area[z] } )
-noreef_high <- sapply( archipelago_list, function(z){ x=d[,"archipelago"]==z; sum( d[x,"high"]*(1-d[x,"reef"])*d[x,"sqkm"], na.rm=TRUE )/area[z] } ) # no reef high island, covariate not used in models
-noreef_low <- sapply( archipelago_list, function(z){ x=d[,"archipelago"]==z; sum( d[x,"makatea"]*(1-d[x,"reef"])*d[x,"sqkm"], na.rm=TRUE )/area[z] } ) # no reef high island, covariate not used in models
-
-log_mean_area["Tuamotus"] <- mean( log( tuamotors_island_sqkm * 1000000 ) ) 
-# correction converted to square meters
-log_max_area["Tuamotus"] <- log(170) 
-# correction
-reeflow_mean_area["Tuamotus"] <- 5 # an educated guess since there are countless numbers of atolls with no data
-reeflow_max_area["Tuamotus"] <- 170 # correction
-
-
-# ------------------------------------------------------------------
-# CREATE CULTURAL INHERITANCE PREDICTORS
-# ------------------------------------------------------------------
-
-# to use this gotta extract traits and matrix multiply thru?
-
-# shit, the shape is wrong......! no wonder this leads to all sorts of weirdnessess
-# this should be a LONG table
-
-traits <- trait_data[,c("Hawaii", "Marq", "Tuam", "Soci", "Aust", "Cook", "Mani", "Newz", "Samo", "Tong", "Fiji")]
-traits <- as.matrix(traits)
-
-# along colonization sequence
-inherit.islands <- t( sapply( archipelago_list, function(y){ x <- d[,"archipelago"]==y; d[x,21:31][1,] } ) )
-inherit_mean1 <- sapply( archipelago_list, function(z)  rowMeans( t( as.numeric( inherit.islands[z,] ) * t(traits) ), na.rm=TRUE ) )
-inherit_present <- sapply( archipelago_list, function(z)  ifelse( rowMeans( t( as.numeric( inherit.islands[z,] ) * t(traits) ), na.rm=TRUE )>0, 1, 0 ) )
-# within spheres of interactions, according to Weisler
-sphere.islands <- t( sapply( archipelago_list, function(y){ x <- d[,"archipelago"]==y; d[x,10:20][1,] } ) )
-sphere_mean1 <- sapply( archipelago_list, function(z)  rowMeans( t( as.numeric( sphere.islands[z,] ) * t(traits) ), na.rm=TRUE ) )
-sphere_present1 <- sapply( archipelago_list, function(z)  ifelse( rowMeans( t( as.numeric( sphere.islands[z,] ) * t(traits) ), na.rm=TRUE )> 0, 1, 0 ) )
-
-# ------------------------------------------------------------------
-# GENERATE INDICES OF SUBSETS OF TRAITS
-# ------------------------------------------------------------------
-all <- 1:nrow(trait_data)
-
-hull <- which(trait_data$category=="hull")
-decoration <- which(trait_data$category=="decoration")
-sailrigging <- which(trait_data$category=="sailrigging")
-doublecanoe <- which(trait_data$category=="doublecanoe")
-outrigger <- which(trait_data$category=="outrigger")
-paddle <- which(trait_data$category=="paddle")
-
-
-# make this a predictor variable in the actual data
-
-# narrow down the traits
-set <- get( traitset )
-Y <- as.matrix( traits[set,] )
-sphere_mean <- as.matrix( sphere_mean1[set,] )
-sphere_present <- as.matrix( sphere_present1[set,])
-inherit_mean <- as.matrix( inherit_mean1[set,] )
-inherit_present <- as.matrix( inherit_present[set,] )
-
-I <- ncol( Y ) # number of islands
-T <- nrow( Y ) # number of traits
-a <- log_mean_area # average island area of each archipelago (log-transformed), vector that matches the columns of Y
-
-
-
-library(rethinking)
-n_iter <- 100 # length of chain
-#----------------------------------------------------------
-# ------------- MODELS AND ESTIMATION ---------------------
-#----------------------------------------------------------
-# -------- "Null" models ---------
-
-
-
-# model mCoinFlip
-dat_list <- list( T, I, Y )
-mCoinFlip <- stan(file='./code/mCoinFlip.stan', data=dat_list, iter=n_iter)
-save(mCoinFlip, file='./output/mCoinFlip.robj')
-
-# model mBase checked
-dat_list <- list( T, I, Y )
-mBase <- stan(file='./code/mBase.stan', data=dat_list, iter=n_iter)
-save(mBase, file='./output/mBase.robj')
-
-#----------------------------------------------------------
-# -------- Inheritance models -----------
-
-# model mPastMean
-inherit <- inherit_mean
-dat_list <- list( T, I, Y, inherit )
-mPastMean <- stan(file='./code/mPast.stan', data=dat_list, iter=n_iter)
-save(mPastMean, file='./output/mPastMean.robj')
-
-# model mPastPresent
-inherit <- inherit_present
-dat_list <- list( T, I, Y, inherit )
-mPastPresent <- stan(file='./code/mPast.stan', data=dat_list, iter=n_iter)
-save(mPastPresent, file='./output/mPastPresent.robj')
-
-# model mPast2Mean 
-inherit <- inherit_mean
-dat_list <- list( T, I, Y, inherit )
-mPast2Mean <- stan(file='./code/mPast2.stan', data=dat_list, iter=n_iter)
-save(mPast2Mean, file='./output/mPast2Mean.robj')
-
-# model mPast2Present 
-inherit <- inherit_present
-dat_list <- list( T, I, Y, inherit )
-mPast2Present <- stan(file='./code/mPast2.stan', data=dat_list, iter=n_iter)
-save(mPast2Present, file='./output/mPast2Present.robj')
-
-# model mSphereMean 
-sphere <- sphere_mean
-dat_list <- list( T, I, Y, sphere )
-mSphereMean <- stan(file='./code/mSphere.stan', data=dat_list, iter=n_iter)
-save(mSphereMean, file='./output/mSphereMean.robj')
-
-# model mSpherePresent 
-sphere <- sphere_present
-dat_list <- list( T, I, Y, sphere )
-mSpherePresent <- stan(file='./code/mSphere.stan', data=dat_list, iter=n_iter)
-save(mSpherePresent, file='./output/mSpherePresent.robj')
-
-# model mPastPresentSphereMean 
-sphere <- sphere_mean; inherit <- inherit_present
-dat_list <- list( T, I, Y, sphere, inherit )
-mPastPresentSphereMean <- stan(file='./code/mPastSphere.stan', data=dat_list, iter=n_iter)
-save(mPastPresentSphereMean, file='./output/mPastPresentSphereMean.robj')
-
-# model mPastPresentSpherePresent
-sphere <- sphere_present; inherit <- inherit_present 
-dat_list <- list( T, I, Y, sphere, inherit )
-mPastPresentSpherePresent <- stan(file='./code/mPastSphere.stan', data=dat_list, iter=n_iter)
-save(mPastPresentSpherePresent, file='./output/mPastPresentSpherePresent.robj')
-
-# model mPastMeanSphereMean 
-sphere <- sphere_mean; inherit <- inherit_mean
-dat_list <- list( T, I, Y, sphere, inherit )
-mPastMeanSphereMean <- stan(file='./code/mPastSphere.stan', data=dat_list, iter=n_iter)
-save(mPastMeanSphereMean, file='./output/mPastMeanSphereMean.robj')
-
-# model mPastMeanSpherePresent
-sphere <- sphere_present; inherit <- inherit_mean
-dat_list <- list( T, I, Y, sphere, inherit )
-mPastMeanSpherePresent <- stan(file='./code/mPastSphere.stan', data=dat_list, iter=n_iter)
-save(mPastMeanSpherePresent, file='./output/mPastMeanSpherePresent.robj')
-
-# model mPast2PresentSphereMean 
-sphere <- sphere_mean; inherit <- inherit_present
-dat_list <- list( T, I, Y, sphere, inherit )
-mPast2PresentSphereMean <- stan(file='./code/mPast2Sphere.stan', data=dat_list, iter=n_iter)
-save(mPast2PresentSphereMean, file='./output/mPast2PresentSphereMean.robj')
-
-# model mPast2PresentSpherePresent
-sphere <- sphere_present; inherit <- inherit_present 
-dat_list <- list( T, I, Y, sphere, inherit )
-mPast2PresentSpherePresent <- stan(file='./code/mPast2Sphere.stan', data=dat_list, iter=n_iter)
-save(mPast2PresentSpherePresent, file='./output/mPast2PresentSpherePresent.robj')
-
-# model mPast2MeanSphereMean 
-sphere <- sphere_mean; inherit <- inherit_mean
-dat_list <- list( T, I, Y, sphere, inherit )
-mPast2MeanSphereMean <- stan(file='./code/mPast2Sphere.stan', data=dat_list, iter=n_iter)
-save(mPast2MeanSphereMean, file='./output/mPast2MeanSphereMean.robj')
-
-# model mPast2MeanSpherePresent
-sphere <- sphere_present; inherit <- inherit_mean
-dat_list <- list( T, I, Y, sphere, inherit )
-mPast2MeanSpherePresent <- stan(file='./code/mPast2Sphere.stan', data=dat_list, iter=n_iter)
-save(mPast2MeanSpherePresent, file='./output/mPast2MeanSpherePresent.robj')
-
-
-# #----------------------------------------------------------
-# # ------------ Ecology models -----------
-
-# model mAreaTotal
-a <- log_total_area
-dat_list <- list( T, I, Y, a )
-mAreaTotal <- stan(file='./code/mArea.stan', data=dat_list, iter=n_iter)
-save(mAreaTotal, file='./output/mAreaTotal.robj')
-
-# model mAreaMean
-a <- log_mean_area
-dat_list <- list( T, I, Y, a )
-mAreaMean <- stan(file='./code/mArea.stan', data=dat_list, iter=n_iter)
-save(mAreaMean, file='./output/mAreaMean.robj')
-
-# model mAreaMax
-a <- log_max_area
-dat_list <- list( T, I, Y, a )
-mAreaMax <- stan(file='./code/mArea.stan', data=dat_list, iter=n_iter)
-save(mAreaMax, file='./output/mAreaMax.robj')
-
-# model mReefHigh
-dat_list <- list( T, I, Y, rh=reef_high )
-mReefHigh <- stan(file='./code/mReefHigh.stan', data=dat_list, iter=n_iter)
-save(mReefHigh, file='./output/mReefHigh.robj')
-
-# model mNoReefHigh
-dat_list <- list( T, I, Y, nrh=noreef_high )
-mNoReefHigh <- stan(file='./code/mNoReefHigh.stan', data=dat_list, iter=n_iter)
-save(mNoReefHigh, file='./output/mNoReefHigh.robj')
-
-# model mReefLow
-dat_list <- list( T, I, Y, rl=reef_low )
-mReefLow <- stan(file='./code/mReefLow.stan', data=dat_list, iter=n_iter)
-save(mReefLow, file='./output/mReefLow.robj')
-
-# model mNoReefLow
-dat_list <- list( T, I, Y, nrl=noreef_low )
-mNoReefLow <- stan(file='./code/mNoReefLow.stan', data=dat_list, iter=n_iter)
-save(mNoReefLow, file='./output/mNoReefLow.robj')
-
-# model mAreaTotalReefHigh
-dat_list <- list( T, I, Y, a=log_total_area, rh=reef_high )
-mAreaTotalReefHigh <- stan(file='./code/mAreaReefHigh.stan', data=dat_list, iter=n_iter)
-save(mAreaTotalReefHigh, file='./output/mAreaTotalReefHigh.robj')
-
-# model mAreaTotalNoReefHigh
-dat_list <- list( T, I, Y, a=log_total_area, nrh=noreef_high )
-mAreaTotalNoReefHigh <- stan(file='./code/mNoReefHigh.stan', data=dat_list, iter=n_iter)
-save(mAreaTotalNoReefHigh, file='./output/mAreaTotalNoReefHigh.robj')
-
-# model mAreaTotalReefLow
-dat_list <- list( T, I, Y, a=log_total_area, rl=reef_low )
-mAreaTotalReefLow <- stan(file='./code/mReefLow.stan', data=dat_list, iter=n_iter)
-save(mAreaTotalReefLow, file='./output/mAreaTotalReefLow.robj')
-
-# model mAreaTotalNoReefLow
-dat_list <- list( T, I, Y, a=log_total_area, nrl=noreef_low )
-mAreaTotalNoReefLow <- stan(file='./code/mNoReefLow.stan', data=dat_list, iter=n_iter)
-save(mAreaTotalNoReefLow, file='./output/mAreaTotalNoReefLow.robj')
-
-# model mAreaMeanReefHigh
-dat_list <- list( T, I, Y, a=log_mean_area, rh=reef_high )
-mAreaMeanReefHigh <- stan(file='./code/mAreaReefHigh.stan', data=dat_list, iter=n_iter)
-save(mAreaMeanReefHigh, file='./output/mAreaMeanReefHigh.robj')
-
-# model mAreaMeanNoReefHigh
-dat_list <- list( T, I, Y, a=log_mean_area, nrh=noreef_high )
-mAreaMeanNoReefHigh <- stan(file='./code/mNoReefHigh.stan', data=dat_list, iter=n_iter)
-save(mAreaMeanNoReefHigh, file='./output/mAreaMeanNoReefHigh.robj')
-
-# model mAreaMeanReefLow
-dat_list <- list( T, I, Y, a=log_mean_area, rl=reef_low )
-mAreaMeanReefLow <- stan(file='./code/mReefLow.stan', data=dat_list, iter=n_iter)
-save(mAreaMeanReefLow, file='./output/mAreaMeanReefLow.robj')
-
-# model mAreaMeanNoReefLow
-dat_list <- list( T, I, Y, a=log_mean_area, nrl=noreef_low )
-mAreaMeanNoReefLow <- stan(file='./code/mNoReefLow.stan', data=dat_list, iter=n_iter)
-save(mAreaMeanNoReefLow, file='./output/mAreaMeanNoReefLow.robj')
-
-# model mAreaTotalReefNoReefHighLow
-dat_list <- list( T, I, Y, a=log_total_area, rh=reef_high, 
-    rl=reef_low, nrh=noreef_high, nrl=noreef_low)
-mAreaTotalReefNoReefHighLow <- stan(file='./code/mAreaReefNoReefHighLow.stan', data=dat_list, iter=n_iter)
-save(mAreaTotalReefNoReefHighLow, file='./output/mAreaTotalReefNoReefHighLow.robj')
-
-# model mAreaMeanReefNoReefHighLow
-dat_list <- list( T, I, Y, a=log_mean_area, rh=reef_high, 
-    rl=reef_low, nrh=noreef_high, nrl=noreef_low)
-mAreaMeanReefNoReefHighLow <- stan(file='./code/mAreaReefNoReefHighLow.stan', data=dat_list, iter=n_iter)
-save(mAreaMeanReefNoReefHighLow, file='./output/mAreaMeanReefNoReefHighLow.robj')
-
-
-# #----------------------------------------------------------
-# #----------- Inheritance and ecology models -----------
-
-
-# model mPastMeanAreaMean
-dat_list <- list( T, I, Y, inherit = inherit_mean, a = log_mean_area )
-mPastMeanAreaMean <- stan(file='./code/mPastArea.stan', data=dat_list, iter=n_iter)
-save(mPastMeanAreaMean, file='./output/mPastMeanAreaMean.robj')
-
-# model mPastMeanAreaTotal
-dat_list <- list( T, I, Y, inherit = inherit_mean, a = log_total_area )
-mPastMeanAreaTotal <- stan(file='./code/mPastArea.stan', data=dat_list, iter=n_iter)
-save(mPastMeanAreaTotal, file='./output/mPastMeanAreaTotal.robj')
-
-# model mPastPresentAreaMean
-dat_list <- list( T, I, Y, inherit = inherit_present, a = log_mean_area )
-mPastPresentAreaMean <- stan(file='./code/mPastArea.stan', data=dat_list, iter=n_iter)
-save(mPastPresentAreaMean, file='./output/mPastPresentAreaMean.robj')
-
-# model mPastPresentAreaTotal
-dat_list <- list( T, I, Y, inherit = inherit_present, a = log_total_area )
-mPastPresentAreaTotal <- stan(file='./code/mPastArea.stan', data=dat_list, iter=n_iter)
-save(mPastPresentAreaTotal, file='./output/mPastPresentAreaTotal.robj')
-
-# model mPastMeanAreaMeanReefHighLow
-dat_list <- list( T, I, Y, inherit = inherit_mean, 
-    a = log_mean_area, rh=reef_high, rl=reef_low)
-mPastMeanAreaMeanReefHighLow <- stan(file='./code/mPastAreaReefHighLow.stan', data=dat_list, iter=n_iter)
-save(mPastMeanAreaMeanReefHighLow, file='./output/mPastMeanAreaMeanReefHighLow.robj')
-
-# model mPastPresentAreaMeanReefHighLow
-dat_list <- list( T, I, Y, inherit = inherit_present, 
-    a = log_mean_area, rh=reef_high, rl=reef_low)
-mPastPresentAreaMeanReefHighLow <- stan(file='./code/mPastAreaReefHighLow.stan', data=dat_list, iter=n_iter)
-save(mPastPresentAreaMeanReefHighLow, file='./output/mPastPresentAreaMeanReefHighLow.robj')
-
-# model mPastMeanAreaMeanNoReefHighLow
-dat_list <- list( T, I, Y, inherit = inherit_mean, 
-    a = log_mean_area, nrh=noreef_high, nrl=noreef_low)
-mPastMeanAreaMeanNoReefHighLow <- stan(file='./code/mPastAreaNoReefHighLow.stan', data=dat_list, iter=n_iter)
-save(mPastMeanAreaMeanNoReefHighLow, file='./output/mPastMeanAreaMeanNoReefHighLow.robj')
-
-# model mPastPresentAreaMeanNoReefHighLow
-dat_list <- list( T, I, Y, inherit = inherit_present, 
-    a = log_mean_area, nrh=noreef_high, nrl=noreef_low)
-mPastPresentAreaMeanNoReefHighLow <- stan(file='./code/mPastAreaNoReefHighLow.stan', data=dat_list, iter=n_iter)
-save(mPastPresentAreaMeanNoReefHighLow, file='./output/mPastPresentAreaMeanNoReefHighLow.robj')
-
-# #--
-
-# model mSphereMeanAreaMean
-dat_list <- list( T, I, Y, sphere = sphere_mean, a = log_mean_area )
-mSphereMeanAreaMean <- stan(file='./code/mSphereArea.stan', data=dat_list, iter=n_iter)
-save(mSphereMeanAreaMean, file='./output/mSphereMeanAreaMean.robj')
-
-# model mSphereMeanAreaTotal
-dat_list <- list( T, I, Y, sphere = sphere_mean, a = log_total_area )
-mSphereMeanAreaTotal <- stan(file='./code/mSphereArea.stan', data=dat_list, iter=n_iter)
-save(mSphereMeanAreaTotal, file='./output/mSphereMeanAreaTotal.robj')
-
-# model mSpherePresentAreaMean
-dat_list <- list( T, I, Y, sphere = sphere_present, a = log_mean_area )
-mSpherePresentAreaMean <- stan(file='./code/mSphereArea.stan', data=dat_list, iter=n_iter)
-save(mSpherePresentAreaMean, file='./output/mSpherePresentAreaMean.robj')
-
-# model mSpherePresentAreaTotal
-dat_list <- list( T, I, Y, sphere = sphere_present, a = log_total_area )
-mSpherePresentAreaTotal <- stan(file='./code/mSphereArea.stan', data=dat_list, iter=n_iter)
-save(mSpherePresentAreaTotal, file='./output/mSpherePresentAreaTotal.robj')
-
-# model mSphereMeanAreaMeanReefHighLow
-dat_list <- list( T, I, Y, sphere = sphere_mean, 
-    a = log_mean_area, rh=reef_high, rl=reef_low)
-mSphereMeanAreaMeanReefHighLow <- stan(file='./code/mSphereAreaReefHighLow.stan', data=dat_list, iter=n_iter)
-save(mSphereMeanAreaMeanReefHighLow, file='./output/mSphereMeanAreaMeanReefHighLow.robj')
-
-# model mSpherePresentAreaMeanReefHighLow
-dat_list <- list( T, I, Y, sphere = sphere_present, 
-    a = log_mean_area, rh=reef_high, rl=reef_low)
-mSpherePresentAreaMeanReefHighLow <- stan(file='./code/mSphereAreaReefHighLow.stan', data=dat_list, iter=n_iter)
-save(mSpherePresentAreaMeanReefHighLow, file='./output/mSpherePresentAreaMeanReefHighLow.robj')
-
-# model mSphereMeanAreaMeanNoReefHighLow
-dat_list <- list( T, I, Y, sphere = sphere_mean, 
-    a = log_mean_area, nrh=noreef_high, nrl=noreef_low)
-mSphereMeanAreaMeanNoReefHighLow <- stan(file='./code/mSphereAreaNoReefHighLow.stan', data=dat_list, iter=n_iter)
-save(mSphereMeanAreaMeanNoReefHighLow, file='./output/mSphereMeanAreaMeanNoReefHighLow.robj')
-
-# model mSpherePresentAreaMeanNoReefHighLow
-dat_list <- list( T, I, Y, sphere = sphere_present, 
-    a = log_mean_area, nrh=noreef_high, nrl=noreef_low)
-mSpherePresentAreaMeanNoReefHighLow <- stan(file='./code/mSphereAreaNoReefHighLow.stan', data=dat_list, iter=n_iter)
-save(mSpherePresentAreaMeanNoReefHighLow, file='./output/mSpherePresentAreaMeanNoReefHighLow.robj')
-
-# model mPastPresentSpherePresentAreaMeanReefHighLow
-dat_list <- list( T, I, Y, inherit = inherit_present, 
-    sphere = sphere_present, a = log_mean_area, rh=reef_high, rl=reef_low)
-mPastPresentSpherePresentAreaMeanNoReefHighLow <- stan(file='./code/mPastSphereAreaReefHighLow.stan', data=dat_list, iter=n_iter)
-save(mPastPresentSpherePresentAreaMeanNoReefHighLow, file='./output/mPastPresentSpherePresentAreaMeanNoReefHighLow.robj')
-
-# model mPastPresentSpherePresentAreaMeanNoReefHighLow
-dat_list <- list( T, I, Y, inherit = inherit_present, 
-    sphere = sphere_present, a = log_mean_area, nrh=noreef_high, nrl=noreef_low)
-mPastPresentSpherePresentAreaMeanNoReefHighLow <- stan(file='./code/mPastSphereAreaNoReefHighLow.stan', data=dat_list, iter=n_iter)
-save(mPastPresentSpherePresentAreaMeanNoReefHighLow, file='./output/mPastPresentSpherePresentAreaMeanNoReefHighLow.robj')
-
-# model mPast2PresentSpherePresentAreaMeanReefHighLow
-dat_list <- list( T, I, Y, inherit = inherit_present, 
-    sphere = sphere_present, a = log_mean_area, rh=reef_high, rl=reef_low)
-mPast2PresentSpherePresentAreaMeanNoReefHighLow <- stan(file='./code/mPast2SphereAreaReefHighLow.stan', data=dat_list, iter=n_iter)
-save(mPast2PresentSpherePresentAreaMeanNoReefHighLow, file='./output/mPast2PresentSpherePresentAreaMeanNoReefHighLow.robj')
-
-# model mPast2PresentSpherePresentAreaMeanNoReefHighLow
-dat_list <- list( T, I, Y, inherit = inherit_present, 
-    sphere = sphere_present, a = log_mean_area, nrh=noreef_high, nrl=noreef_low)
-mPast2PresentSpherePresentAreaMeanNoReefHighLow <- stan(file='./code/mPast2SphereAreaNoReefHighLow.stan', data=dat_list, iter=n_iter)
-save(mPast2PresentSpherePresentAreaMeanNoReefHighLow, file='./output/mPast2PresentSpherePresentAreaMeanNoReefHighLow.robj')
-
-
-# }
