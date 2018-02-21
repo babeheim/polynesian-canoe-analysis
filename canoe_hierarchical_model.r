@@ -1,7 +1,7 @@
 
 rm(list=ls())
 
-trait_data <- read.csv( file <- "./inputs/traits.csv", stringsAsFactors=FALSE)
+trait_data <- read.csv( file <- "./inputs/canoe_traits.csv", stringsAsFactors=FALSE)
 d <- read.csv( file <- "./inputs/islanddata.csv", stringsAsFactors=FALSE, na.strings="." )
 
 islands_list <- sort(unique(d$archipelago))
