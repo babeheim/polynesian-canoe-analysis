@@ -1,0 +1,264 @@
+\documentclass[11pt]{article}
+\usepackage{natbib} % our bibliography system 
+\usepackage{graphicx} % allows graphics
+\usepackage{hyperref} % for adding color and clickable links to references
+
+% configuration of {hyperref} package
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+}
+
+\usepackage{amsmath} % allows numbered equations, for one thing
+\usepackage{authblk} % to add more authors
+
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+
+\usepackage[dvipsnames]{xcolor} % adds 68 named colors and the ability to define your own, but can cause trouble with beamer and tikz; tikz must be declared after this
+
+\usepackage{mathpazo} % URW Palladio, from Palatino
+\usepackage{microtype} % cleans up the kerning and hypenation
+\usepackage[margin=15pt,font=small,labelfont={bf}]{caption} % cleans up the structure of the captions
+
+\usepackage{mdframed} % for framed text boxes; does not play well with lineno
+
+% frame style
+\mdfdefinestyle{textBox}{%
+  linecolor=boxLine,
+  outerlinewidth=2pt,
+  roundcorner=20pt,
+  innertopmargin=-6pt,
+  innerbottommargin=10pt,
+  innerrightmargin=4pt,
+  innerleftmargin=4pt,
+  leftmargin = 2pt,
+  rightmargin = 2pt,
+  backgroundcolor=boxBG
+}
+
+\title{Electronic Supplementary Materials for ``Inheritance, Ecology and the Evolution of the Canoes of East Oceania''}
+\author[,    1]{Bret A. Beheim\footnote{Corresponding author. babeheim@ucdavis.edu}}
+\author[1]{Adrian V. Bell}
+
+\affil[1]{Graduate Group in Ecology, Department of Environmental Science and Policy, University of California, Davis, USA}
+\date{26 January 2011}
+
+\begin{document}
+
+\maketitle
+
+
+\section{Canoe Supplement}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.35]{figures/shunting.pdf}
+\caption{Illustration of shunting procedure. This technique for moving upwind involves turning the canoe at a right angle from the prevailing wind, manually lifting the tack out of its fore socket, and carefully walking it to the other end of the canoe to insert in an equivalent socket in the aft, reversing the direction of sailing.}
+\end{center}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=1.0]{figures/tonganOutrigger.jpg}
+\caption{Tongan dugout with outrigger. Two booms and indirect U-shaped stanchions connect main hull to outrigger float. Low freeboard (distance between waterline and gunwale) and lack of washstrakes (added planks along sides to keep the sea out) make this canoe more vulnerable to swamping compared to that in Figure 3. \textit{Photo by A.V. Bell. }}
+\end{center}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=1]{figures/microOutrigger.jpg}
+\caption{Micronesian outrigger. \textit{Photo by Kathryn Demps.}}
+\end{center}
+\end{figure}
+
+\newpage
+\section{Model Selection Methods}
+
+The deviance information criterion is
+
+ \[ DIC = -2 \overline{\log(\mathcal{L}(\widehat{\theta}))} + 2p_D
+\]
+where $\overline{\log(\mathcal{L}(\widehat{\theta}))}$ is the average deviance over 100,000 simulations using WinBUGS and $p_D$ is the effective number of parameters. The relative distances, rather than absolute magnitudes, of the DIC scores of the models are the basis for comparing them, and so it is common to report each model's $\Delta$ DIC relative to the top model (with the lowest DIC score). Among all R models used in the model comparison, DIC weights are calculating for model $i$ with associated $\Delta$ DIC $d_i$ via
+
+\[w_i = \frac{\exp(-0.5 d_i)}{\sum_{r=1}^R exp(-0.5 d_r)}
+\]
+
+Rather than report the parameter estimates from a particular model, we can use the DIC weights and parameter estimates of all models to create model-weighted estimates (Burnham and Anderson, 2002). Specifically, the vector of model-weighted estimates across a set of R models is given by
+
+  \[\widehat{\overline{\theta}} = \sum_{i=1}^R w_i \widehat{\theta}_i
+\]
+where $\theta_i$ is the estimate of parameter $\theta$ for model $i$, $w_i$ is the DIC weight for model $i$, and $\widehat{\overline{\theta}}$ is the model-averaged estimate of $\theta$. Model-weighted variance is calculated in a similar way, save for an additional term to account for the uncertainty among models (Burnham and Anderson, 2002), yielding
+  \[\widehat{var}(\widehat{\overline{\theta}}) = \left[\sum_{i=1}^R w_i \sqrt{\widehat{var}(\widehat{\theta_i}|g_i) + (\widehat{\theta}_i - \widehat{\overline{\theta}})^2}\right]^2
+\]
+
+%
+%
+%-----------------------------------------------
+\section{Further Reading}
+%-----------------------------------------------
+Pacific societies have attracted generations of anthropologists and ecologists for their ability to serve as natural ``laboratories'' of human behavior and socio-ecological processes \citep{Mead1957:PolynesianLab}, and are particularly useful for testing models of cultural transmission and behavioral ecology. Because settlers generally moved west-to-east from the ancestral Lapita homeland in the Bismarks and Solomons, and long-distance voyaging between archipelagos ceased by 1450 CE \citep{Weisler2002:LongVoyagingCollapse}, Pacific island settlements provide an unusually well-partitioned phyletic distribution of cultural variation \citep{KirchGreen2001}. In fact, the isolation of some Polynesian communities has led to cultural divergences that mirror those of the endemic fauna that surround them, allowing anthropologists to use phylogenetic language trees to infer settlement sequences \citep{Gray2000tree, Gray2009:Phylogenies}. On the other hand, it is well understood that ecological conditions played a determining role in the fates of many Pacific societies, and recent Oceanic archaeology has focused on how chemical, biological and climatological gradients both structure and are themselves shaped by agrarian landscapes and socio-political systems \citep{Kirch1984evolution, Kirch2007}.
+
+Within the last fifty years, models of human settlement and dispersion in Fiji and Polynesia have become increasingly ecumenical, supplementing archeology and traditional ethnography \citep{Anderson2006motivation,Feinberg1988seafaring} with structuralist social theory \citep{Sahlins1985:History}, climatology \citep{Anderson2006ENSO}, geochemistry \citep{Collerson2007adze}, genetics \citep{MatisooSmith2004:PacificRatDNA, Whyte2005:PolyHumanEvol, Friedlaender2008:PacificGenetics}, linguistics \citep{Greenhill2005:DispersalTrees}, computational modeling \citep{DiPiazza2007virtualcanoes, Avis2007discovery}, and, in the case of Ben Finney's double-hull \textit{Hokule'a}, experimental seafaring \citep{Finney1994:Rediscovery}. Although the peopling of the Pacific has captured the attention of centuries of scholarship, debates continue about (1) how purposive Polynesian voyaging was \citep{Whyte2005:PolyHumanEvol}, (2) the sequence and methods of settlement \citep{Irwin1992}, (3) how quickly it occurred \citep{Anderson2000:Slowboats, Thomas2008:Lastpulse, Gray2009:Phylogenies}, (4) the extent of pre-European trade and interaction  \citep{Weisler1998}, (5) the kinds of canoes and sailing rigs employed in these processes \citep{Doran1981canoes, Anderson2001:SharpEnd}, and (6) the evolutionary pressures that shaped them \citep{Horridge1987:IndonesiaCanoes}.
+
+%-----------------------------------------------
+\section{Data Reprocessing}
+%-----------------------------------------------
+
+Our dataset classified 65 distinct canoe traits based on descriptions in \cite{HaddonHornell1936}'s \textit{Canoes of Oceania}. Beginning with \cite{rogers2008:Canoes}'s 134-trait dataset, we excluded or merged traits which were most likely to be affected by recording biases, practical dependencies and coding errors.
+
+For example, although encyclopedic in their treatment, \cite{HaddonHornell1936} employ an inconsistent use of certain terms, such as \textit{sennit} and \textit{coir}, whose distinctiveness is critical to traits coded as OAH12, OAH13 and DAH11. In such cases, traits were merged to eliminate the potential for artificial distinction. 
+
+Additionally, since many of the descriptions in \textit{Canoes of Oceania} were culled by Haddon \& Hornell from a hodgepodge of accounts by European explorers, missionaries, merchants, and scholars over a period of several hundred years, the potential for simple omission of a canoe trait actually present on an island group is considerable. That Fijian double canoes ranged from 25 to 72 feet in length, 97 to 120 feet in length, but not in-between suggests the presence of a ethnographic sampling bias, rather than some actual design preference or constraint. 
+
+In some cases, the supplementary table in \cite{rogers2008:Canoes} is clearly missing data; use of Hawaiian canoes for fishing was coded as ``absent'' (OCP2, DCP2), even though both double-hull and outrigger canoes had fishing-pole rests (OAF1, DAF1). Similarly, though outrigger canoes were common in both the Australs and Tonga, traits OAO1 (``Outrigger present on port side'') and OAO2 (``Outrigger present on starboard side'') are both coded as ``absent'' for these archipelagos, a logical impossibility. Coding the orientation of the outrigger floats is particularly problematic because Polynesian canoes were often designed to sail with either end facing forward and have no permanent starboard and port, rendering such traits essentially meaningless. To circumvent this problem, we excluded traits likely to be missing data points or whose presence in the island group was ambiguous among the primary sources.
+
+Furthermore, several traits were excluded because of likely influence of practical interdependencies, invisible to covariance screening tests because of potentially large sampling biases and the confused nomenclature in \textit{Canoes of Oceania}. For example, ``mast stepped forward'' and ``Oceanic Lateen sail present'' are treated in the original dataset as independent traits, despite the fact that the former is a necessary component of the latter \citep{Doran1981canoes}. Doran's survey of Austronesian canoe designs synthesizes a variety of reports by \cite{HaddonHornell1936} into distributional maps, and also provides the basis for our data on the distribution of shunting and the use of the primitive crane sprit.     
+
+Finally, we compacted equivalent double-hull traits and outrigger traits, on the premise that any discrepancies between the two categories represent noise rather than useful information. Considering the regularity by which outrigger and double-hulled canoes were converted from one to the other in Polynesia, the notion that traits on one canoe type should be distinct from traits on the other does not appear tenable.
+
+
+\section{Model Specification and Estimation}
+
+We introduce some notation to describe trait distributions and our models. Let $i \in \{1,2, \dots ,11\}$ index island group and $t \in \{1,2,\dots,65\}$ index canoe traits. Then binary variable $x_{t,i} \in \{0,1\}$ describes the presence or absence of trait $t$ on island group $i$ for the 65 $\times$ 11 matrix of island traits $X$.
+
+Using the currently understood colonization sequence (see Figure 1 of the main text), let $C_i$ be the set of island groups within the region that colonized island group $i$, and $|C_i|$ be the number of island groups in $C_i$. Now, the frequency of trait $t$ in the colonizing region $C_i$ of island group $i$ is $y_{t,i} = \left( \sum_{j \in C_i} x_{t,j} \right) / |C_i|$. Now let $S_i$ be the set of island groups within the sphere of influence of island group $i$, based on the zones of interaction compiled by Weisler (1998), and $|S_i|$ be the number of island groups in $S_i$. Then the frequency of trait $t$ in the sphere of influence $S_i$ of island group $i$ is $m_{t,i}= \left(\sum_{j \in S_i} x_{t,j} \right) / |S_i|$. Because data sources are not properly collected statistical samples in any sense, we should consider that the presence of a trait in a region is more diagnostic for cultural transmission than its observed frequency (as recorded in \cite{HaddonHornell1936}). Hence, for interaction spheres, we also consider sphere presence/absence models using $p_{t,i}= 1$ if $m_{t,i}>0$, and $0$ otherwise.
+
+Since the goal is to predict $x_{t,i} \in \{0,1\}$, the general form of the model for trait $t$ is
+    \[\mathrm{Logit} \Pr( x_{t,i}=1 ) = \alpha_t + B Z_i \],
+where $Z_i$ is a vector of ecological and cultural inheritance covariates for island $i$ and $B$ is a vector of coefficients. Table~\ref{tab:models} shows examples of null (N) models, cultural inheritance (C) models, ecological (E)  models, and the cultural inheritance-ecological (CE) models.
+
+Using a Gibbs sampler implemented in the software \texttt{R} and \texttt{Winbugs}, we estimate posterior distributions and the Deviance Information Criterion (DIC). For each run of the Gibbs sampler we perform 100,000 interations with a burn-in of 50,000 interations. Starting values for continuous parameters were randomly drawn from a Gaussian distribution with mean zero and variance 1, and binary parameters randomly drawn from a Binomial distribution with the probability of a success (drawing a value of one) equal to one-half.
+
+\begin{table}[t]
+\begin{center}
+\begin{footnotesize}
+\begin{tabular}{p{7.5cm} p{7cm}}
+\bf{Model name} & $ \text{Logit }Pr(x_{t,i}=1) =$\\
+\hline
+{\em Null models}& \\
+\hline
+N1: Weighted coinflip & $ \alpha $ \\
+N2: Base & $ \alpha_t $ \\
+\hline
+{\em Inheritance} & \\
+\hline
+C1: Past & $\alpha_t + \beta_1 y_{t,i}$ \\
+C2: Past \& Sphere Present & $\alpha_t + \beta_1 y_{t,i} + \beta_2 p_{t,i} $ \\
+\hline
+{\em Ecology} & \\
+\hline
+E1: Island area &  $\alpha_t + \beta a_i$ \\
+E2: Reef high \& low \& Atoll & $\alpha_t + \kappa_1 r_{h,i} + \kappa_2 r_{l,i} + \kappa_3 r_{a,i}$ \\
+\hline
+{\em Inheritance \& Ecology} & \\
+\hline
+CE1: Past \& Area & $\alpha_t + \gamma y_{t,i} + \beta a_i$ \\
+CE6: Past \& Sphere Present \& Area \& Island type & $\alpha_t + \gamma y_{t,i} + \lambda p_{t,i} + \beta a_i + \kappa_1 r_{h,i} + \kappa_2 r_{l,i} + \kappa_3 r_{a,i}$ \\
+\hline
+\end{tabular}
+\end{footnotesize}
+\end{center}
+\caption{Representative models of those considered in this analysis. The average island size in the focal archipelago ($a_i$), and ``Island Type'' represents ``Reef high'' ($r_{h,i}$), ``Reef low'' ($r_{l,i}$), or ``Atoll'' ($r_{a,i}$).}
+\label{tab:models}
+\end{table}
+
+\clearpage
+\fbox{
+\parbox{6in}{Box 1. Description of Bayesian Statistical terms used in the text \\
+\textbf{Bayesian statistics:} A branch of statistics that focuses on estimating the probability density function of unknown parameters using a prior distribution, the observations, and Bayes' theorem. In this way, assertions about unknown parameters are not expressed by attempting to cover true values with confidence intervals; instead, the emphasis is on making probabilistic statements using distributions \citep{Gill2008}.\\
+\textbf{Credible intervals:} The 100$(1-a)$\% credible interval gives the region of the parameter space in which the probability of covering parameters $\Theta$ is equal to $(1-a)$. Unlike the frequentist confidence interval, there is no presumption of a true parameter value to estimate. 
+We report 95\% credible intervals in Table \ref{tab:modelComparisonsDecorative}. \citep{Gill2008}.\\
+\textbf{Deviance Information Criteria (DIC):} A value used to compare model performance with other competing models. The relative value compared to other models, not the actual number, is used to compare the performance of the model. It is a Bayesian analog to Akaike Information Criteria (AIC) which is more commonly known in model selection. \\
+\textbf{Gibbs sampler:} A sampling algorithm that is an example of Markov Chain Monte Carlo methods used to estimate an integral that cannot be solved analytically. Most posterior distributions cannot be solved analytically, therefore this and similar methods are essential for parameter estimation. \\
+\textbf{Posterior distribution:} A probability density function of posterior probabilities used to estimate the unknown parameters and their credible intervals. Posterior probabilities are conditional probabilities with the Bayesian prior, the likelihood, and a normalizing constant as key components. Most often these can only be estimated using Markov Chain Monte Carlo methods. \\
+\textbf{Markov Chain Monte Carlo:} Because the posterior density function for unknown parameters usually cannot be solved analytically, this stochastic numerical method is used to provide an estimate of the posterior distribution.\\
+\textbf{Bayesian priors:} also known as prior density functions, are propositions or statements concerning the values of unknown parameters before estimation. These are expressed as probability density functions such as the Normal (Gaussian) distribution, or commonly the Beta distribution. The prior and the likelihood of the data given a model are key components of the posterior distribution. \\
+}
+}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{lllll}
+\input{figures/modelComparisonsAllTraits.tex}
+\end{tabular}
+\end{center}
+\caption{Model rankings for all canoe traits. $\Delta$ DIC is the difference between a model's DIC score and the top model's, and DIC weights ($w$) quantify the relative performance among models. The best-performing null model is highlighted in bold; models with higher rankings (lower DIC scores) are plausibly better at explaining the data than the null model.}
+\label{tab:modelComparisonsAllTraits}
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{lllll}
+\input{figures/modelComparisonsDecorative.tex}
+\end{tabular}
+\end{center}
+\caption{Model rankings for decorative canoe traits.}
+\label{tab:modelComparisonsDecorative}
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{lllll}
+\input{figures/modelComparisonsDouble.tex}
+\end{tabular}
+\end{center}
+\caption{Model rankings for double-hull canoe traits.}
+\label{tab:modelComparisonsDouble}
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{lllll}
+\input{figures/modelComparisonsHull.tex}
+\end{tabular}
+\end{center}
+\caption{Model rankings for hull traits.}
+\label{tab:modelComparisonsHull}
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{lllll}
+\input{figures/modelComparisonsOutrigger.tex}
+\end{tabular}
+\end{center}
+\caption{Model rankings for outrigger canoe traits.}
+\label{tab:modelComparisonsOutrigger}
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{lllll}
+\input{figures/modelComparisonsPaddle.tex}
+\end{tabular}
+\end{center}
+\caption{Model rankings for all paddle traits.}
+\label{tab:modelComparisonsPaddle}
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{lllll}
+\input{figures/modelComparisonsSailRigging.tex}
+\end{tabular}
+\end{center}
+\caption{Model rankings for sail and rigging traits.}
+\label{tab:modelComparisonsSailRigging}
+\end{table}
+
+\newpage
+
+\bibliographystyle{plainnat} % bibtex requires a style
+\bibliography{references} % pointing to references.bib
+
+\end{document}
+
+
+
+
+
+
+
+
