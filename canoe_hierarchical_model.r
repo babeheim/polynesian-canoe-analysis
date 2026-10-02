@@ -125,7 +125,7 @@ trait_data$area_sum <- group_reg$area_sum[link]
 
 trait_data$log_area_sum <- log(trait_data$area_sum / 1e8)
 
-
+dm <- dplyr::select(trait_data, present, cat, group, trait, low, log_area_sum, ancestor_trait_count, neighbor_trait_count)
 
 library(rethinking)
 
@@ -135,7 +135,7 @@ model0 <- alist(
     a ~ normal(0, 10)
 )
 
-m0 <- map2stan(model0, data=trait_data)
+m0 <- ulam(model0, data = dm)
 
 model1 <- alist(
     present ~ bernoulli(p),
@@ -144,7 +144,7 @@ model1 <- alist(
     a_trait[trait] ~ normal(0, 3)
 )
 
-m1 <- map2stan(model1, data=trait_data)
+m1 <- ulam(model1, data = dm)
 
 model2 <- alist(
     present ~ bernoulli(p),
@@ -154,8 +154,7 @@ model2 <- alist(
     a_group[group] ~ normal(0, 3)
 )
 
-m2 <- map2stan(model2, data=trait_data)
-
+m2 <- ulam(model2, data = dm)
 
 
 model3 <- alist(
@@ -169,7 +168,7 @@ model3 <- alist(
     b_area ~ normal(0, 1)
 )
 
-m3 <- map2stan(model3, data=trait_data, cores=3, chains=3)
+m3 <- ulam(model3, data = dm, cores=3, chains=3)
 
 # do different categories of trait have idff relationships with area?
 
@@ -190,7 +189,7 @@ model4 <- alist(
     b_neighbor ~ normal(0, 1)
 )
 
-m4 <- map2stan(model4, data=trait_data)
+m4 <- ulam(model4, data = dm)
 
 
 model5 <- alist(
@@ -209,7 +208,7 @@ model5 <- alist(
     b_neighbor ~ normal(0, 1)
 )
 
-m5 <- map2stan(model5, data=trait_data, chains=3, cores=3, iter=500)
+m5 <- ulam(model5, data = dm, chains=3, cores=3, iter=500)
 
 # imputation: for fiji/samoa/tonga we dont know what their ancestors had, but we might be able to
 # impute it...so, for ancestor_trait_count we need them to be NA
