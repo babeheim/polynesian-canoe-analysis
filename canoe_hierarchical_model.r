@@ -1,6 +1,8 @@
 
 rm(list=ls())
 
+library(dplyr)
+
 trait_data <- read.csv( file <- "./inputs/canoe_traits.csv", stringsAsFactors=FALSE)
 d <- read.csv( file <- "./inputs/islanddata.csv", stringsAsFactors=FALSE, na.strings="." )
 
