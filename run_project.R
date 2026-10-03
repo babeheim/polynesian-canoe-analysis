@@ -90,7 +90,11 @@ project_root <- normalizePath(
 restore_environment(project_root)
 
 
-
+library(rethinking)
+# Additional package dependencies not discoverable from package metadata.
+# rethinking::ulam() uses digest internally but rethinking does not
+# currently declare digest in DESCRIPTION.
+requireNamespace("digest")
 library(dplyr)
 
 trait_data <- read.csv( file <- "./inputs/canoe_traits.csv", stringsAsFactors=FALSE)
