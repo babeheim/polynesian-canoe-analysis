@@ -244,12 +244,13 @@
       ],
       "VignetteBuilder": "knitr",
       "Repository": "https://stan-dev.r-universe.dev",
-      "RemoteUrl": "https://github.com/stan-dev/cmdstanr",
-      "RemoteRef": "v0.9.0",
-      "RemoteSha": "da99e2ba954658bdad63bffb738c4444c33a4e0e",
       "NeedsCompilation": "no",
       "Author": "Jonah Gabry [aut], Rok Češnovar [aut], Andrew Johnson [aut, cre] (ORCID: <https://orcid.org/0000-0001-7000-8065>), Steve Bronder [aut], Ben Bales [ctb], Mitzi Morris [ctb], Mikhail Popov [ctb], Mike Lawrence [ctb], William Michael Landau [ctb] (ORCID: <https://orcid.org/0000-0003-1878-3253>), Jacob Socolar [ctb], Martin Modrák [ctb], Ven Popov [ctb]",
-      "Maintainer": "Andrew Johnson <andrew.johnson@arjohnsonau.com>"
+      "Maintainer": "Andrew Johnson <andrew.johnson@arjohnsonau.com>",
+      "RemoteType": "repository",
+      "RemoteUrl": "https://github.com/stan-dev/cmdstanr",
+      "RemoteRef": "v0.9.0",
+      "RemoteSha": "da99e2ba954658bdad63bffb738c4444c33a4e0e"
     },
     "coda": {
       "Package": "coda",
